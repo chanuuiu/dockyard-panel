@@ -809,7 +809,7 @@
       <span class="brand-mark"></span>
       <h2>Dockyard Admin</h2>
     </div>
-    <div class="hint">Authorized access required. Your token is kept in this browser — reloading keeps you signed in.</div>
+    <div class="hint">Authorized access required — enter a GitHub token with repo write access. Your token is kept in this browser; reloading keeps you signed in.</div>
     <div class="login">
       <input type="password" id="tokenInput" placeholder="Admin token" autocomplete="off">
       <button id="connectBtn">Connect</button>
@@ -1305,6 +1305,28 @@
     } catch (e) { /* ignore */ }
   }
 
+  // Hard gate: the dashboard must NOT unlock until the submitted token is a
+  // real GitHub token that can actually write to the repo. Empty input, an
+  // expired/revoked token (HTTP 401), or a token without repo write scope are
+  // all rejected here — anonymous read access to the public repo is not enough.
+  async function validateToken(candidate) {
+    var t = String(candidate || "").trim();
+    if (!t) {
+      throw new Error("Enter your GitHub token first — it is required to open the panel.");
+    }
+    var res = await fetch("https://api.github.com/user", {
+      headers: { Authorization: "Bearer " + t, Accept: "application/vnd.github+json" }
+    });
+    if (!res.ok) {
+      throw new Error("GitHub rejected this token (" + res.status + "). It may be missing, expired, revoked, or mistyped.");
+    }
+    var scopes = (res.headers.get("X-OAuth-Scopes") || "").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+    if (scopes.length && scopes.indexOf("repo") === -1 && scopes.indexOf("public_repo") === -1) {
+      throw new Error("This token can't write to the repo. Use a classic PAT with the 'repo' scope, or a fine-grained PAT with Contents write access to x64chanu/dockyard-panel.");
+    }
+    return t;
+  }
+
   function friendlyApiError(e) {
     var msg = e.message || String(e);
     if (/401/.test(msg)) return msg + " — your token may be expired or invalid. Re-login with a fresh token.";
@@ -1313,10 +1335,10 @@
   }
 
   $("connectBtn").addEventListener("click", async function () {
-    token = $("tokenInput").value.trim();
     $("loginError").textContent = "";
     $("connectBtn").disabled = true;
     try {
+      token = await validateToken($("tokenInput").value);
       await applyRemote();
       localStorage.setItem(TOKEN_KEY, token);
       showLoggedIn();
@@ -1326,7 +1348,7 @@
       checkWriteScopes();
     } catch (e) {
       token = null;
-      $("loginError").textContent = "Couldn't connect: " + e.message;
+      $("loginError").textContent = (e && e.message) ? e.message : "Couldn't connect.";
       setStatus("Disconnected", false);
     } finally {
       $("connectBtn").disabled = false;
@@ -1337,8 +1359,8 @@
   (async function boot() {
     var saved = localStorage.getItem(TOKEN_KEY);
     if (!saved) return;
-    token = saved;
     try {
+      token = await validateToken(saved);
       await applyRemote();
       showLoggedIn();
       setStatus("Online", true);
@@ -1347,7 +1369,7 @@
     } catch (e) {
       localStorage.removeItem(TOKEN_KEY);
       token = null;
-      $("loginError").textContent = "Saved session expired: " + e.message + " — sign in again.";
+      $("loginError").textContent = "Saved session rejected: " + (e && e.message ? e.message : e) + " — sign in again.";
     }
   })();
 
