@@ -1771,6 +1771,8 @@
       setSourceUI();
       var sel = $("arcdevsRepos");
       if (sel && sel.options.length <= 1) loadArcDevsRepos();
+      var fr = $("fetchReleasesBtn");
+      if (fr) fr.addEventListener("click", fetchReleases);
     }
   }
 
@@ -2026,8 +2028,6 @@
       fetchReleases();
     }
   });
-
-  $("fetchReleasesBtn").addEventListener("click", fetchReleases);
 
   async function fetchReleases() {
     var owner, name;
