@@ -4,1050 +4,652 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Dockyard Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
 <script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+<script>(function(){try{if(localStorage.getItem("dockyard_theme")==="light")document.documentElement.setAttribute("data-theme","light");}catch(e){}})();</script>
 <style>
+  /* ============================================================
+     Dockyard Admin — monochrome console
+     Palette: #0d0d0d / #e9e2ff only. Everything else is a tint.
+     ============================================================ */
+
   :root {
-    --bg: #0D0D0D;
-    --surface: #151417;
-    --surface-light: #1C1A1D;
-    --border: #28252A;
-    --border-light: #332F35;
-    --text: #E9E2FF;
-    --text-secondary: #9A95A1;
-    --text-muted: #66626B;
-    --primary: #FF0029;
-    --primary-dark: #CC0021;
-    --primary-muted: rgba(255, 0, 41, 0.14);
-    --primary-glow: rgba(255, 0, 41, 0.4);
-    --white: #FFFFFF;
-    --success: #3DDC84;
-    --warning: #F5A623;
-    --danger: #FF4D5E;
+    --bg: #0d0d0d;
+    --fg: #e9e2ff;
+    --fg-strong: #ffffff;
+    --fg-mute: rgba(233, 226, 255, 0.62);
+    --fg-faint: rgba(233, 226, 255, 0.38);
+    --line: rgba(233, 226, 255, 0.16);
+    --line-soft: rgba(233, 226, 255, 0.07);
+    --surface: rgba(233, 226, 255, 0.045);
+    --surface-hi: rgba(233, 226, 255, 0.09);
+    --focus: rgba(233, 226, 255, 0.28);
+  }
+
+  [data-theme="light"] {
+    --bg: #e9e2ff;
+    --fg: #0d0d0d;
+    --fg-strong: #000000;
+    --fg-mute: rgba(13, 13, 13, 0.62);
+    --fg-faint: rgba(13, 13, 13, 0.38);
+    --line: rgba(13, 13, 13, 0.18);
+    --line-soft: rgba(13, 13, 13, 0.08);
+    --surface: rgba(13, 13, 13, 0.05);
+    --surface-hi: rgba(13, 13, 13, 0.09);
+    --focus: rgba(13, 13, 13, 0.22);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  html, body { height: 100%; }
+
   body {
     background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--fg);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 14px;
     line-height: 1.5;
-    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 28px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface);
+  .mono { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+  /* Theme transition — enabled after first paint to avoid a flash */
+  body.theme-anim, body.theme-anim * {
+    transition: background-color 200ms ease, border-color 200ms ease, color 200ms ease, opacity 200ms ease;
   }
 
-  header h1 {
-    font-size: 18px;
-    font-weight: 800;
-    letter-spacing: -0.2px;
-    color: var(--white);
-  }
-
-  header h1 span { color: var(--primary); }
-
-  header .sub {
-    color: var(--text-secondary);
-    font-size: 12px;
-    font-weight: 700;
-    margin-top: 2px;
-  }
-
-  .status {
-    font-size: 12px;
-    font-weight: 700;
-    padding: 6px 12px;
-    border-radius: 999px;
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
-  }
-
-  .status.online { color: var(--success); border-color: rgba(61,220,132,.4); }
-  .status.offline { color: var(--danger); border-color: rgba(255,77,94,.4); }
-
-  main {
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 24px;
-  }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 22px;
-    margin-bottom: 20px;
-    box-shadow: 0 10px 34px -20px rgba(0,0,0,.7);
-    transition: border-color .2s, box-shadow .2s, transform .2s;
-  }
-
-  .card:hover {
-    border-color: var(--border-light);
-    transform: translateY(-1px);
-    box-shadow: 0 16px 44px -20px rgba(0,0,0,.8);
-  }
-
-  .card h2 {
-    font-size: 14px;
-    font-weight: 800;
-    letter-spacing: .5px;
-    text-transform: uppercase;
-    color: var(--text);
-    margin-bottom: 4px;
-  }
-
-  .card .hint {
-    color: var(--text-muted);
-    font-size: 12px;
-    margin-bottom: 16px;
-  }
-
-  .field { margin-bottom: 14px; }
-  .field label {
-    display: block;
-    color: var(--text-secondary);
-    font-size: 12px;
-    font-weight: 700;
-    margin-bottom: 6px;
-  }
-
-  input[type=text], input[type=url], input[type=password], textarea, select {
-    width: 100%;
-    background: var(--surface-light);
-    border: 1px solid var(--border);
-    color: var(--text);
-    border-radius: 12px;
-    padding: 10px 12px;
-    font-size: 14px;
-    font-family: inherit;
-  }
-
-  input:focus, textarea:focus, select:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px var(--primary-muted);
-  }
-
-  textarea { resize: vertical; min-height: 72px; }
-
-  .row { display: flex; gap: 12px; }
-  .row .field { flex: 1; }
+  button, input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
 
   button {
     cursor: pointer;
-    border: none;
-    border-radius: 12px;
-    padding: 10px 18px;
-    font-size: 14px;
-    font-weight: 800;
-    font-family: inherit;
-    background: var(--primary);
-    color: var(--white);
-    transition: transform .18s cubic-bezier(.22,1,.36,1), background .18s, box-shadow .18s, opacity .18s;
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    color: var(--fg);
+    font-weight: 600;
+    padding: 6px 12px;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, opacity 150ms ease;
   }
+  button:hover { border-color: var(--focus); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  button:hover {
-    background: var(--primary-dark);
-    transform: translateY(-1px);
-    box-shadow: 0 10px 30px -10px var(--primary-glow);
+  .btn-primary { background: var(--fg); color: var(--bg); border-color: var(--fg); font-weight: 600; }
+  .btn-primary:hover { background: var(--fg-strong); border-color: var(--fg-strong); }
+  .btn-primary:disabled { background: var(--fg-mute); border-color: transparent; color: var(--bg); }
+
+  .btn-quiet { border-color: var(--line); color: var(--fg-mute); }
+  .btn-quiet:hover { color: var(--fg); border-color: var(--focus); }
+
+  .btn-danger { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+  .btn-danger:hover { border-color: var(--fg-strong); background: var(--fg-strong); }
+
+  .btn-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; padding: 0;
   }
+  .btn-icon ion-icon { pointer-events: none; }
 
-  button:active { transform: translateY(0) scale(.97); }
-  button:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
-
-  button.secondary {
-    background: var(--surface-light);
-    color: var(--text);
-    border: 1px solid var(--border);
-  }
-
-  button.secondary:hover {
-    background: var(--surface-light);
-    border-color: var(--border-light);
-    color: var(--white);
-    box-shadow: none;
-  }
-
-  button.ghost {
-    background: transparent;
-    color: var(--text-secondary);
-    border: 1px solid var(--border);
-  }
-
-  button.ghost:hover {
-    color: var(--text);
-    border-color: var(--border-light);
-    background: var(--surface-light);
-    box-shadow: none;
-  }
-
-  button.danger {
-    background: transparent;
-    color: var(--danger);
-    border: 1px solid rgba(255,77,94,.4);
-  }
-
-  button.danger:hover {
-    color: #fff;
-    background: var(--danger);
-    border-color: var(--danger);
-    box-shadow: 0 8px 24px -12px rgba(255,77,94,.35);
-  }
-
-  .login { display: flex; gap: 10px; }
-
-  .picker-row { display: flex; gap: 10px; align-items: flex-end; }
-
-  .picker-row .field { flex: 1; margin-bottom: 0; }
-
-  .ordered-list { margin-top: 14px; }
-
-  .ordered-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--surface-light);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 8px 12px;
-    margin-bottom: 8px;
-    transition: border-color .18s, transform .18s, background .18s;
-  }
-
-  .ordered-item:hover {
-    border-color: var(--border-light);
-    transform: translateY(-1px);
-  }
-
-  .ordered-item .avatar {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 800;
-    color: var(--text-secondary);
-    flex-shrink: 0;
-    overflow: hidden;
-  }
-
-  .ordered-item .avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-  .ordered-item .meta { flex: 1; min-width: 0; }
-  .ordered-item .meta .name { font-size: 13px; font-weight: 700; }
-  .ordered-item .meta .id { color: var(--text-muted); font-size: 11px; }
-
-  .ordered-item .tools { display: flex; gap: 4px; }
-
-  .ordered-item .tools button {
-    width: 30px;
-    height: 30px;
-    padding: 0;
-    border-radius: 10px;
-    font-size: 13px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
-  }
-
-  .empty-list {
-    color: var(--text-muted);
-    font-size: 12px;
-    text-align: center;
-    padding: 16px;
-    border: 1px dashed var(--border);
-    border-radius: 12px;
-  }
-
-  /* ---- Modder badges ---- */
-
-  .badge-list { margin-top: 14px; }
-
-  .badge-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--surface-light);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 8px 12px;
-    margin-bottom: 8px;
-  }
-
-  .badge-row .meta { flex: 1; min-width: 0; }
-  .badge-row .meta .name { font-size: 13px; font-weight: 800; }
-  .badge-row .meta .id { color: var(--text-muted); font-size: 11px; }
-
-  .badge-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 10px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 800;
-    color: #fff;
-  }
-
-  .badge-add {
-    display: flex;
-    gap: 10px;
-    align-items: flex-end;
-    flex-wrap: wrap;
-    margin-top: 14px;
-  }
-
-  .badge-add input[type=text] { flex: 1 1 160px; }
-  .badge-add input[type=color] {
-    width: 52px;
-    height: 40px;
-    padding: 2px;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: var(--surface-light);
-    cursor: pointer;
-  }
-
-  .badge-sep {
-    margin-top: 20px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border);
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-
-  .badge-icons {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
-    margin-top: 12px;
-  }
-
-  .badge-icons-label {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text-secondary);
-    margin-right: 4px;
-  }
-
-  .badge-icon {
-    min-width: 34px;
-    height: 34px;
-    padding: 0 8px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-secondary);
-    background: var(--surface-light);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    cursor: pointer;
-    transition: transform .12s ease;
-  }
-
-  .badge-icon ion-icon { pointer-events: none; }
-
-  .badge-icon:hover { transform: translateY(-1px); color: var(--text); }
-
-  .badge-icon.selected {
-    border-color: var(--primary);
-    color: var(--text);
-    box-shadow: 0 0 0 2px var(--primary-muted);
-  }
-
-  .badge-verified-check {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text-secondary);
-    cursor: pointer;
-  }
-
-  .badge-verified-check input { accent-color: var(--primary); }
-
-  .badge-verified-preview {
-    display: inline-flex;
-    width: 18px;
-    height: 18px;
-    flex: none;
-  }
-
-  .badge-verified-preview svg { width: 100%; height: 100%; }
-
-  .save-row {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    justify-content: flex-end;
-  }
-
-  /* ---- GitHub "Add a mod" ---- */
-
-  .pick-repo { display: flex; gap: 8px; flex-wrap: wrap; }
-  .pick-repo select { flex: 1 1 100%; }
-  .pick-repo .in { display: flex; gap: 8px; flex: 2 1 auto; }
-  .pick-repo .in .field { margin-bottom: 0; flex: 1; }
-  .pick-repo button { flex: 0 0 auto; margin-top: 0; }
-
-  #storeBar { flex: 2 1 auto; align-self: center; }
-
-  .source-switch { display: inline-flex; gap: 6px; margin-bottom: 14px; }
-
-  .source-switch .seg {
-    background: var(--surface-light);
-    color: var(--text-secondary);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    padding: 7px 14px;
-    font-size: 12px;
-    font-weight: 800;
-    transition: background .18s, color .18s, border-color .18s, transform .18s;
-  }
-
-  .source-switch .seg:hover { color: var(--text); }
-
-  .source-switch .seg.active {
-    background: var(--primary);
-    color: #fff;
-    border-color: var(--primary);
-    opacity: 1;
-    box-shadow: 0 6px 18px -8px var(--primary-glow);
-  }
-
-  .release-list { margin-top: 14px; }
-
-  .release-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: var(--surface-light);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 12px 14px;
-    margin-bottom: 8px;
-    cursor: pointer;
-    transition: border-color .12s, background .12s;
-  }
-
-  .release-item:hover { border-color: var(--border-light); }
-
-  .release-item.selected {
-    border-color: var(--primary);
-    background: var(--primary-muted);
-  }
-
-  .release-item .tag { flex-shrink: 0; }
-  .release-item input[type=radio] { accent-color: var(--primary); }
-
-  .release-item .meta { flex: 1; min-width: 0; }
-  .release-item .meta .name { font-size: 13px; font-weight: 700; }
-  .release-item .meta .date { color: var(--text-muted); font-size: 11px; margin-top: 2px; }
-  .release-item .meta .assets { color: var(--text-secondary); font-size: 11px; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-  .badge {
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: .5px;
-    text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 999px;
-    background: var(--surface-light);
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
-    flex-shrink: 0;
-  }
-
-  .badge.arcdevs { border-color: rgba(255,0,41,.5); color: var(--primary); }
-
-  .row-hint { margin-top: 8px; }
-
-  /* ---- Modal ---- */
-
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(13,13,13,.72);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 50;
-    padding: 20px;
-    animation: fadeIn .2s ease both;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  .modal {
+  input[type=text], input[type=url], input[type=password], input[type=search],
+  input[type=color], textarea, select {
     width: 100%;
-    max-width: 560px;
-    max-height: 92vh;
-    overflow: auto;
     background: var(--surface);
-    border: 1px solid var(--border-light);
-    border-radius: 22px;
-    padding: 22px;
-    animation: popIn .28s cubic-bezier(.22,1,.36,1) both;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    color: var(--fg);
+    padding: 6px 10px;
   }
-
-  .modal-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 6px;
+  input[type=color] { padding: 2px; cursor: pointer; }
+  input::placeholder, textarea::placeholder { color: var(--fg-faint); }
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--fg-mute);
+    box-shadow: 0 0 0 1px var(--focus);
   }
+  textarea { resize: vertical; min-height: 84px; font-family: inherit; }
+  select { width: auto; }
 
-  .modal-head h2 {
-    font-size: 15px;
-    font-weight: 800;
-    letter-spacing: .4px;
-    text-transform: uppercase;
-  }
-
-  .modal-head button { padding: 6px 10px; font-size: 13px; }
-
-  .summary {
-    background: var(--surface-light);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 12px 14px;
-    margin-bottom: 16px;
-  }
-
-  .summary .repo { font-size: 12px; color: var(--text-secondary); font-weight: 700; }
-  .summary .rel { font-size: 13px; font-weight: 800; margin-top: 2px; }
-  .summary .asst { color: var(--text-muted); font-size: 11px; margin-top: 4px; }
-
-  .check-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .check-grid label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--surface-light);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 9px 11px;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--text);
-    cursor: pointer;
-  }
-
-  .check-grid input[type=checkbox] { accent-color: var(--primary); }
-
-  .avatar-pick { display: flex; align-items: flex-end; gap: 12px; }
-  .avatar-pick .field { flex: 1; margin-bottom: 0; }
-
-  .avatar-preview {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: var(--border);
-    border: 1px solid var(--border-light);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 800;
-    color: var(--text-secondary);
-    overflow: hidden;
-    flex-shrink: 0;
-  }
-
-  .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
-
-  .modal .save-row { margin-top: 18px; }
-
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translate(-50%, 80px);
-    background: var(--primary);
-    color: #fff;
-    font-size: 14px;
-    font-weight: 800;
-    padding: 12px 20px;
-    border-radius: 16px;
-    opacity: 0;
-    transition: all .3s cubic-bezier(.22,1,.36,1);
-    pointer-events: none;
-    z-index: 60;
-    box-shadow: 0 12px 40px -8px var(--primary-glow);
-  }
-
-  .toast.show { transform: translate(-50%, 0); opacity: 1; }
-  .toast.error { background: var(--danger); color: #fff; box-shadow: 0 12px 40px -8px rgba(255,77,94,.35); }
-
-  .muted { color: var(--text-muted); font-size: 12px; }
+  a { color: var(--fg); text-decoration: none; }
+  .muted { color: var(--fg-mute); }
+  .faint { color: var(--fg-faint); }
+  .small { font-size: 12px; }
   .hidden { display: none !important; }
 
-  /* ---- Dashboard layout ---- */
+  h1, h2, h3 { font-weight: 700; letter-spacing: -0.01em; }
+
+  /* ---------------- Login ---------------- */
 
   .login-screen {
     min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    place-items: center;
     padding: 24px;
   }
+  .login-frame {
+    width: 100%;
+    max-width: 386px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    padding: 28px;
+  }
+  .login-brand {
+    display: flex; align-items: baseline; gap: 10px;
+    margin-bottom: 18px;
+  }
+  .login-brand .mark {
+    width: 10px; height: 10px; background: var(--fg); align-self: center;
+  }
+  .login-brand h1 { font-size: 16px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
+  .login-brand .sub { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--fg-faint); }
+  .login-frame .hint { font-size: 12px; color: var(--fg-mute); line-height: 1.6; margin-bottom: 16px; }
+  .login-frame label { display: block; font-size: 11px; font-weight: 600; color: var(--fg-mute); margin-bottom: 6px; }
+  .login-frame .field { margin-bottom: 12px; }
+  .login-frame .login-row { display: flex; gap: 8px; }
+  .login-frame .login-row input { flex: 1; font-family: "JetBrains Mono", monospace; }
+  #loginError { margin-top: 12px; font-size: 12px; color: var(--fg); min-height: 16px; }
+  .login-looking { margin-top: 12px; font-size: 11px; color: var(--fg-faint); }
 
-  .login-screen .card { max-width: 440px; width: 100%; animation: fadeUp .4s cubic-bezier(.22,1,.36,1) both; }
-  .login-screen .login-brand { display: flex; align-items: center; gap: 10px; }
-  .login-screen .login-brand .brand-mark { width: 14px; height: 14px; border-radius: 5px; background: var(--primary); }
-  .login-screen .card h2 { font-size: 18px; text-transform: none; letter-spacing: 0; color: var(--white); margin: 0; }
-  .login-screen .card .hint { margin-bottom: 18px; }
-  .login-screen .login { flex-direction: column; gap: 10px; }
-  .login-screen .login input { padding: 12px 14px; }
+  /* ---------------- Shell ---------------- */
 
-  .app { display: flex; min-height: 100vh; }
+  .shell { display: flex; min-height: 100vh; }
 
   .sidebar {
-    width: 236px;
+    width: 228px;
     flex-shrink: 0;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    padding: 18px 12px;
+    border-right: 1px solid var(--line);
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    position: sticky;
-    top: 0;
-    height: 100vh;
+    background: var(--bg);
   }
 
-  .sidebar .brand { padding: 6px 10px 16px; }
-  .sidebar .brand .logo { font-size: 17px; font-weight: 800; letter-spacing: -.3px; color: var(--white); display: flex; align-items: center; gap: 8px; }
-  .sidebar .brand .logo span.accent { color: var(--primary); }
-  .sidebar .brand .logo .brand-mark { width: 11px; height: 11px; border-radius: 4px; background: var(--primary); flex-shrink: 0; }
-  .sidebar .brand .tag { color: var(--text-muted); font-size: 11px; font-weight: 700; margin-top: 2px; padding-left: 19px; }
+  .brand {
+    padding: 20px 18px 16px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .brand .logo { display: flex; align-items: center; gap: 9px; font-size: 15px; font-weight: 700; letter-spacing: 0.01em; }
+  .brand .logo .mark { width: 10px; height: 10px; background: var(--fg); }
+  .brand .logo code { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--fg-faint); font-weight: 400; }
+  .brand .tag { margin-top: 4px; padding-left: 19px; font-size: 11px; color: var(--fg-faint); text-transform: uppercase; letter-spacing: 0.14em; }
 
-  .sidebar nav { display: flex; flex-direction: column; gap: 2px; }
-
-  .sidebar nav button.nav {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    padding: 10px 12px;
-    background: transparent;
-    color: var(--text-secondary);
-    border: none;
-    border-radius: 12px;
+  nav.sidenav { padding: 12px 8px; display: flex; flex-direction: column; gap: 1px; flex: 1; overflow-y: auto; }
+  nav.sidenav .nav-group-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--fg-faint); padding: 10px 12px 4px;
+  }
+  nav.sidenav button.nav {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 7px 12px;
+    border: none; border-radius: 0;
+    border-left: 2px solid transparent;
+    color: var(--fg-mute); font-weight: 500; font-size: 13px;
     text-align: left;
-    font-size: 13px;
-    font-weight: 800;
-    transition: background .18s, color .18s, transform .18s, box-shadow .18s;
   }
-
-  .sidebar nav button.nav:hover { background: var(--surface-light); color: var(--text); opacity: 1; transform: translateY(-1px); }
-  .sidebar nav button.nav.active { background: var(--primary); color: #fff; box-shadow: 0 8px 24px -12px var(--primary-glow); }
-  .sidebar nav button.nav ion-icon { font-size: 18px; flex-shrink: 0; }
-
-  .sidebar .side-foot {
-    margin-top: auto;
-    padding-top: 14px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  nav.sidenav button.nav ion-icon { font-size: 16px; flex-shrink: 0; opacity: 0.8; }
+  nav.sidenav button.nav:hover { background: var(--surface); color: var(--fg); }
+  nav.sidenav button.nav.active {
+    background: var(--surface);
+    color: var(--fg);
+    border-left-color: var(--fg);
+    font-weight: 600;
   }
+  nav.sidenav button.nav.active ion-icon { opacity: 1; }
 
-  .sidebar .side-foot .conn {
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--text-muted);
-    padding: 0 6px;
+  .side-foot {
+    border-top: 1px solid var(--line);
+    padding: 12px 14px 14px;
+    display: flex; flex-direction: column; gap: 8px;
   }
+  .side-foot .conn { font-size: 11px; color: var(--fg-faint); display: flex; align-items: center; gap: 6px; }
+  .side-foot .conn .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--fg-faint); }
+  .side-foot .conn.online .dot { background: var(--fg); }
+  .side-foot .conn.offline .dot { background: var(--fg-mute); }
+  .side-foot .row { display: flex; gap: 8px; }
+  .side-foot .row button { flex: 1; font-size: 12px; }
 
-  .sidebar .side-foot .conn.online { color: var(--success); }
-  .sidebar .side-foot .conn.offline { color: var(--danger); }
-
-  .sidebar .side-foot button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-
-  .main-wrap {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-  }
+  .main-wrap { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 
   .topbar {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 14px 28px;
-    background: rgba(13,13,13,.92);
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
-    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+    padding: 0 28px;
+    height: 52px;
+    border-bottom: 1px solid var(--line);
+    flex-shrink: 0;
+  }
+  .topbar .crumb { font-size: 12px; color: var(--fg-faint); }
+  .topbar .crumb b { color: var(--fg); font-weight: 600; }
+  .topbar .spacer { flex: 1; }
+  .topbar .right { display: flex; align-items: center; gap: 8px; }
+  .topbar .conn-pill {
+    display: flex; align-items: center; gap: 6px;
+    font-family: "JetBrains Mono", monospace; font-size: 11px;
+    color: var(--fg-mute); padding: 3px 10px; border: 1px solid var(--line);
+  }
+  .topbar .conn-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--fg-mute); }
+  .topbar .conn-pill.online .dot { background: var(--fg); }
+  .topbar .conn-pill.offline .dot { background: var(--fg-mute); }
+  .burger { display: none; }
+  .overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 40;
   }
 
-  .topbar h1 { font-size: 16px; font-weight: 800; color: var(--white); display: flex; align-items: center; gap: 8px; }
-  .topbar h1 span.accent { color: var(--primary); }
-  .topbar h1 .brand-mark { width: 10px; height: 10px; border-radius: 3px; background: var(--primary); }
-  .topbar .right { display: flex; align-items: center; gap: 10px; }
-  .topbar .right button { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; font-size: 12px; }
-
-  main { max-width: 860px; width: 100%; margin: 0 auto; padding: 24px 24px 8px; }
-
-  .section:not(.hidden) {
-    display: block;
-    animation: fadeUp .32s cubic-bezier(.22,1,.36,1) both;
+  main {
+    flex: 1;
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 28px 32px 96px;
   }
 
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+  .page-head { margin-bottom: 24px; }
+  .page-head h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+  .page-head p { max-width: 640px; margin-top: 4px; font-size: 13px; color: var(--fg-mute); line-height: 1.6; }
+
+  .section { display: none; }
+  .section.active { display: block; animation: pageIn 200ms ease both; }
+  @keyframes pageIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  /* ---------------- Metric strip ---------------- */
+
+  .metric-strip {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    border: 1px solid var(--line);
+    border-left: none;
+    border-right: none;
+    margin-bottom: 28px;
+    overflow-x: auto;
   }
-
-  @keyframes popIn {
-    from { opacity: 0; transform: scale(.96) translateY(8px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
+  .metric {
+    padding: 14px 18px;
+    border-left: 1px solid var(--line);
+    min-width: 120px;
+    white-space: nowrap;
   }
+  .metric:first-child { border-left: none; }
+  .metric .num { font-family: "JetBrains Mono", monospace; font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+  .metric .lbl { margin-top: 2px; font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--fg-faint); }
+  .metric .delta { margin-top: 4px; font-size: 11px; color: var(--fg-mute); }
+  .metric .delta .up::before { content: "+"; }
 
-  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+  /* ---------------- Panel (non-card content blocks) ---------------- */
 
-  .stat {
-    background: var(--surface-light);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 12px 14px;
-    transition: border-color .18s, transform .18s, background .18s;
-    animation: fadeUp .32s cubic-bezier(.22,1,.36,1) both;
+  .panel { margin-bottom: 28px; }
+  .panel-head {
+    display: flex; align-items: baseline; gap: 12px;
+    padding-bottom: 8px; margin-bottom: 12px;
+    border-bottom: 1px solid var(--line);
   }
+  .panel-head h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+  .panel-head .sub { font-size: 12px; color: var(--fg-faint); }
+  .panel-head .spacer { flex: 1; }
+  .panel-foot { margin-top: 12px; border-top: 1px solid var(--line-soft); padding-top: 10px; }
 
-  .stat:hover {
-    border-color: var(--border-light);
-    transform: translateY(-2px);
+  .note {
+    font-size: 12px; color: var(--fg-mute); line-height: 1.6;
+    border: 1px solid var(--line-soft); border-left: 2px solid var(--fg-faint);
+    padding: 10px 14px;
+  }
+  .note code, p code, td code { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--fg); background: var(--surface); padding: 1px 5px; border: 1px solid var(--line-soft); border-radius: 3px; }
+
+  /* ---------------- Tables ---------------- */
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); }
+  table.tbl { width: 100%; border-collapse: collapse; min-width: 720px; }
+  table.tbl thead th {
+    text-align: left;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--fg-faint);
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
     background: var(--surface);
   }
-
-  .stat .num { font-size: 20px; font-weight: 800; color: var(--primary); }
-  .stat .lbl {
-    color: var(--text-muted);
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-top: 2px;
+  table.tbl tbody td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--line-soft);
+    font-size: 13px;
+    vertical-align: middle;
   }
+  table.tbl tbody tr:last-child td { border-bottom: none; }
+  table.tbl tbody tr { transition: background-color 140ms ease; }
+  table.tbl tbody tr:hover { background: var(--surface); }
+  .tbl-mono { font-family: "JetBrains Mono", monospace; font-size: 12px; }
+  .tbl-sub { font-size: 11px; color: var(--fg-faint); }
+
+  .cell-title { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .cell-title .tname { font-weight: 600; }
+  .cell-title .tid { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--fg-faint); margin-top: 1px; }
+
+  .avatar {
+    width: 30px; height: 30px; flex-shrink: 0;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 600;
+    overflow: hidden;
+  }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+  .tag05 {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    border: 1px solid var(--line); color: var(--fg-mute);
+    padding: 2px 7px;
+    white-space: nowrap;
+  }
+  .tag05.on { color: var(--fg); border-color: var(--fg-mute); }
+  .tag05 ion-icon { font-size: 11px; }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 600;
+    border: 1px solid var(--line); border-radius: 999px;
+    color: var(--fg); background: var(--surface);
+    padding: 2px 8px;
+    white-space: nowrap;
+  }
+  .pill .swatch { width: 8px; height: 8px; border-radius: 50%; }
+  .pill ion-icon { font-size: 11px; }
+
+  .vmark { display: inline-flex; align-items: center; justify-content: center; color: var(--fg); }
+  .vmark ion-icon { font-size: 14px; }
+
+  .cell-actions { display: flex; gap: 4px; white-space: nowrap; }
+
+  /* ---------------- Toolbar / controls ---------------- */
+
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    margin-bottom: 12px;
+  }
+  .toolbar .field { display: flex; align-items: center; gap: 8px; }
+  .toolbar .field label { font-size: 11px; font-weight: 600; color: var(--fg-faint); text-transform: uppercase; letter-spacing: 0.1em; }
+  .toolbar .search { flex: 1; min-width: 200px; max-width: 360px; }
+  .toolbar .spacer { flex: 1; }
+
+  .pagination { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--fg-mute); }
+  .pagination .mono-count { font-family: "JetBrains Mono", monospace; font-size: 11px; }
+
+  .seg { display: inline-flex; border: 1px solid var(--line); }
+  .seg button {
+    border: none; border-right: 1px solid var(--line);
+    border-radius: 0; font-size: 12px; padding: 6px 12px; color: var(--fg-mute);
+  }
+  .seg button:last-child { border-right: none; }
+  .seg button.active { background: var(--fg); color: var(--bg); font-weight: 600; }
+
+  /* ---------------- Ordered / list rows ---------------- */
+
+  .list { border: 1px solid var(--line); }
+  .list .item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .list .item:last-child { border-bottom: none; }
+  .list .item:hover { background: var(--surface); }
+  .list .item .idx { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--fg-faint); width: 20px; flex-shrink: 0; }
+  .list .item .meta { flex: 1; min-width: 0; }
+  .list .item .meta .name { font-weight: 600; }
+  .list .item .meta .id { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--fg-faint); }
+  .list .item .move { display: flex; gap: 2px; }
+
+  .empty {
+    padding: 28px 18px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--fg-faint);
+    border: 1px dashed var(--line);
+  }
+  .empty b { color: var(--fg-mute); font-weight: 600; }
+
+  /* ---------------- Badge editor ---------------- */
+
+  .badge-modder-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .badge-modder-bar select { min-width: 260px; }
+
+  .badge-verified-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0;
+    border-top: 1px solid var(--line-soft);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .badge-verified-row input { accent-color: var(--fg); width: auto; }
+  .badge-verified-row .vlabel { font-weight: 600; }
+
+  .badge-form { display: grid; grid-template-columns: 1.4fr 0.6fr 0.6fr auto; gap: 10px; align-items: end; margin-top: 14px; }
+  .badge-form label { font-size: 11px; color: var(--fg-faint); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; display: block; }
+  .badge-form input { padding: 5px 9px; }
+
+  .iconpick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; margin-top: 10px; }
+  .iconpick {
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    padding: 8px 6px; font-size: 10px; color: var(--fg-faint);
+    border: 1px solid var(--line-soft);
+  }
+  .iconpick ion-icon { font-size: 20px; color: var(--fg-mute); }
+  .iconpick:hover { border-color: var(--focus); color: var(--fg-mute); }
+  .iconpick.selected { border-color: var(--fg); background: var(--surface); color: var(--fg); }
+  .iconpick.selected ion-icon { color: var(--fg); }
+
+  /* ---------------- Forms ---------------- */
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-grid .span2 { grid-column: 1 / -1; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 11px; font-weight: 600; color: var(--fg-mute); margin-bottom: 5px; }
+  .field .help { font-size: 11px; color: var(--fg-faint); margin-top: 4px; line-height: 1.5; }
+  .check-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+  .check-grid label {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px; font-size: 12px; font-weight: 500;
+    border: 1px solid var(--line); cursor: pointer;
+  }
+  .check-grid label:hover { border-color: var(--focus); }
+  .check-grid input { accent-color: var(--fg); width: auto; }
+
+  .avatar-pick { display: flex; align-items: flex-end; gap: 12px; }
+  .avatar-pick .field { flex: 1; margin-bottom: 14px; }
+  .avatar-preview { width: 36px; height: 36px; margin-bottom: 14px; border: 1px solid var(--line); background: var(--surface); display: flex; align-items: center; justify-content: center; font-family: "JetBrains Mono", monospace; font-size: 11px; overflow: hidden; }
+  .avatar-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* ---------------- Analytics ---------------- */
+
+  .bars { border-left: 1px solid var(--line); padding-left: 12px; display: flex; flex-direction: column; gap: 7px; }
+  .bars .row { display: grid; grid-template-columns: minmax(0,1fr) 120px 84px; gap: 12px; align-items: center; }
+  .bars .rname { font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .bars .track { height: 14px; background: var(--line-soft); position: relative; }
+  .bars .fill { height: 100%; background: var(--fg); }
+  .bars .rval { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--fg-mute); text-align: right; }
+
+  .hist { display: flex; align-items: flex-end; gap: 3px; height: 120px; padding-top: 10px; border-bottom: 1px solid var(--line); }
+  .hist .col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 3px; height: 100%; }
+  .hist .col .bar { width: 100%; min-height: 2px; background: var(--fg); opacity: 0.85; }
+  .hist .col .bar:hover { opacity: 1; }
+  .hist .col .lab { font-family: "JetBrains Mono", monospace; font-size: 9px; color: var(--fg-faint); transform: rotate(-38deg); transform-origin: top left; white-space: nowrap; }
+  .hist .col .cnt { font-family: "JetBrains Mono", monospace; font-size: 10px; color: var(--fg-mute); }
+
+  /* ---------------- Activity ---------------- */
+
+  .timeline { position: relative; padding-left: 22px; }
+  .timeline::before { content: ""; position: absolute; left: 5px; top: 4px; bottom: 4px; width: 1px; background: var(--line); }
+  .ev { position: relative; padding: 10px 0; border-bottom: 1px solid var(--line-soft); }
+  .ev:last-child { border-bottom: none; }
+  .ev .dot { position: absolute; left: -20px; top: 14px; width: 7px; height: 7px; border-radius: 50%; background: var(--bg); border: 1.5px solid var(--fg-mute); }
+  .ev.self .dot { border-color: var(--fg); background: var(--fg); }
+  .ev .ev-top { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .ev .ev-type { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg-faint); width: 96px; flex-shrink: 0; }
+  .ev .ev-entity { font-weight: 600; }
+  .ev .ev-id { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--fg-faint); }
+  .ev .ev-detail { color: var(--fg-mute); font-size: 12px; margin-top: 2px; }
+  .ev .ev-when { margin-left: auto; font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--fg-faint); white-space: nowrap; }
+
+  /* ---------------- Modal ---------------- */
+
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 60;
+    background: rgba(0,0,0,0.55);
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: 48px 20px 20px;
+    overflow-y: auto;
+    animation: fadeIn 160ms ease both;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    width: 100%; max-width: 640px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    padding: 22px 24px;
+    animation: popIn 200ms ease both;
+  }
+  @keyframes popIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .modal-head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+  .modal-head h2 { font-size: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+  .modal-head .close { margin-left: auto; }
+  .modal .summary { border: 1px solid var(--line); background: var(--surface); padding: 12px 14px; margin-bottom: 18px; }
+  .modal .summary .repo { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--fg-mute); }
+  .modal .summary .rel { font-size: 14px; font-weight: 600; margin-top: 2px; }
+  .modal .summary .asst { font-size: 11px; color: var(--fg-faint); margin-top: 4px; line-height: 1.55; }
+  .modal .save-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--line-soft); }
+
+  /* ---------------- Toast ---------------- */
+
+  .toast {
+    position: fixed; bottom: 22px; left: 50%;
+    transform: translate(-50%, 16px);
+    background: var(--fg); color: var(--bg);
+    font-size: 12px; font-weight: 600;
+    padding: 9px 16px;
+    border-radius: 4px;
+    opacity: 0; pointer-events: none;
+    z-index: 80;
+    transition: opacity 220ms ease, transform 220ms ease;
+    max-width: min(92vw, 560px);
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  .toast.error { background: var(--fg); color: var(--bg); }
+
+  /* ---------------- Save bar ---------------- */
 
   .savebar {
-    position: sticky;
-    bottom: 14px;
-    z-index: 20;
-    align-self: center;
-    max-width: 860px;
-    width: calc(100% - 48px);
-    padding: 12px 16px;
-    background: var(--surface);
-    border: 1px solid var(--border-light);
-    border-radius: 18px;
-    box-shadow: 0 -6px 24px rgba(0,0,0,.35);
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 10px;
-    flex-wrap: wrap;
-    animation: fadeUp .36s cubic-bezier(.22,1,.36,1) both;
+    position: fixed; bottom: 0; left: 228px; right: 0; z-index: 50;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 10px 24px;
+    background: var(--bg);
+    border-top: 1px solid var(--line);
+  }
+  .savebar .status { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--fg-mute); }
+  .savebar .spacer { flex: 1; }
+
+  .dirty-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--fg-faint); }
+  .dirty-dot.on { background: var(--fg); }
+
+  /* ---------------- Responsive ---------------- */
+
+  @media (max-width: 900px) {
+    .sidebar {
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 50;
+      transform: translateX(-100%);
+      transition: transform 220ms ease;
+      box-shadow: 0 0 40px rgba(0,0,0,0.4);
+    }
+    .sidebar.open { transform: none; }
+    .overlay.show { display: block; }
+    .burger { display: inline-flex; }
+    .savebar { left: 0; }
   }
 
-  .savebar .muted { margin-right: auto; }
-
-  @media (max-width: 720px) {
-    .sidebar { width: 64px; padding: 14px 8px; }
-    .sidebar .brand .tag,
-    .sidebar nav button.nav span,
-    .sidebar .side-foot button span { display: none; }
-    .sidebar nav button.nav { justify-content: center; padding: 10px 4px; }
-    .sidebar .brand { padding: 6px 4px 14px; text-align: center; }
-    .topbar { padding: 12px 16px; }
-    .topbar h1 { display: none; }
-    main { padding: 16px 16px 8px; }
-    .savebar { width: calc(100% - 32px); }
-    .stat-row { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 640px) {
+    .topbar { padding: 0 16px; }
+    main { padding: 20px 16px 96px; }
+    .metric-strip { grid-auto-flow: row; grid-auto-columns: 1fr; grid-template-columns: repeat(2, 1fr); }
+    .metric { border-left: none; border-top: 1px solid var(--line); }
+    .metric:nth-child(odd) { border-right: 1px solid var(--line); }
+    .form-grid { grid-template-columns: 1fr; }
+    .badge-form { grid-template-columns: 1fr 1fr; }
+    .toolbar .search { max-width: none; }
   }
 </style>
 </head>
 <body>
+
+<!-- ============ LOGIN ============ -->
 <div class="login-screen" id="loginCard">
-  <div class="card">
+  <div class="login-frame">
     <div class="login-brand">
-      <span class="brand-mark"></span>
-      <h2>Dockyard Admin</h2>
+      <span class="mark"></span>
+      <h1>Dockyard Admin</h1>
+      <span class="sub">contents console</span>
     </div>
-    <div class="hint">Authorized access required — enter a GitHub token with repo write access. Your token is kept in this browser; reloading keeps you signed in.</div>
-    <div class="login">
-      <input type="password" id="tokenInput" placeholder="Admin token" autocomplete="off">
-      <button id="connectBtn">Connect</button>
+    <div class="hint">Authorized access only — enter a GitHub token with write access to <code>chanuuiu/dockyard-panel</code>. The token stays in this browser; reloading keeps you signed in.</div>
+    <div class="field">
+      <label>GitHub token</label>
+      <input type="password" id="tokenInput" placeholder="ghp_••••••••••••••" autocomplete="off" spellcheck="false" style="font-family:'JetBrains Mono',monospace;">
     </div>
-    <div id="loginError" class="hint" style="color:var(--danger);margin-top:10px;"></div>
+    <div class="login-row">
+      <button class="btn-primary" id="connectBtn" style="width:100%;">Connect</button>
+    </div>
+    <div id="loginError"></div>
+    <div class="login-looking" id="loginLooking" style="display:none;">Checking token…</div>
   </div>
 </div>
 
-<div class="app hidden" id="app">
-  <aside class="sidebar">
+<!-- ============ APP ============ -->
+<div class="shell hidden" id="app">
+  <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <div class="logo"><span class="brand-mark"></span>Dockyard <span class="accent">Admin</span></div>
-      <div class="tag">content dashboard</div>
+      <div class="logo"><span class="mark"></span>Dockyard <code>/admin</code></div>
+      <div class="tag">content control plane</div>
     </div>
-    <nav>
-      <button type="button" class="nav" data-sec="mods"><ion-icon name="grid-outline"></ion-icon><span>Mods</span></button>
-      <button type="button" class="nav" data-sec="featured"><ion-icon name="star-outline"></ion-icon><span>Featured</span></button>
-      <button type="button" class="nav" data-sec="modders"><ion-icon name="people-outline"></ion-icon><span>Modders</span></button>
-      <button type="button" class="nav" data-sec="delete"><ion-icon name="trash-outline"></ion-icon><span>Delete</span></button>
-      <button type="button" class="nav" data-sec="settings"><ion-icon name="settings-outline"></ion-icon><span>Settings</span></button>
-    </nav>
+    <nav class="sidenav" id="sidenav"></nav>
     <div class="side-foot">
-      <div class="conn offline" id="sideStatus">Disconnected</div>
-      <button class="ghost" id="logoutBtn"><ion-icon name="log-out-outline"></ion-icon><span>Log out</span></button>
+      <div class="conn offline" id="sideStatus"><span class="dot"></span><span>Disconnected</span></div>
+      <div class="row">
+        <button class="btn-quiet" id="themeBtn" title="Toggle theme"><ion-icon name="moon"></ion-icon></button>
+        <button class="btn-quiet" id="logoutBtn"><ion-icon name="log-out"></ion-icon><span>Log out</span></button>
+      </div>
     </div>
   </aside>
 
+  <div class="overlay" id="overlay"></div>
+
   <div class="main-wrap">
     <div class="topbar">
-      <h1><span class="brand-mark"></span>Dockyard <span class="accent">Admin</span></h1>
+      <button class="btn-icon burger" id="burgerBtn"><ion-icon name="menu"></ion-icon></button>
+      <span class="crumb" id="crumb"></span>
+      <span class="spacer"></span>
       <div class="right">
-        <div id="connStatus" class="status">Disconnected</div>
-        <button class="secondary" id="refreshBtn"><ion-icon name="refresh-outline"></ion-icon><span>Fetch</span></button>
+        <div class="conn-pill offline" id="connStatus"><span class="dot"></span><span>Disconnected</span></div>
+        <button class="btn-quiet" id="refreshBtn"><ion-icon name="refresh"></ion-icon><span>Fetch</span></button>
       </div>
     </div>
 
-    <main>
-      <section class="section" id="sec-mods">
-        <div class="card">
-          <h2>Catalog</h2>
-          <div class="hint">Everything that's live in the app right now. This page talks to GitHub directly — it loads once, and you hit <b>Fetch</b> in the top bar to pull the latest copy.</div>
+    <main id="content"></main>
+  </div>
 
-          <div class="stat-row">
-            <div class="stat"><div class="num" id="statMods">0</div><div class="lbl">Mods</div></div>
-            <div class="stat"><div class="num" id="statModders">0</div><div class="lbl">Modders</div></div>
-            <div class="stat"><div class="num" id="statFeatured">0</div><div class="lbl">Featured</div></div>
-            <div class="stat"><div class="num" id="statBadged">0</div><div class="lbl">Badged</div></div>
-          </div>
-
-          <div class="ordered-list" id="catalogList"></div>
-        </div>
-
-        <div class="card">
-          <h2>Add a mod</h2>
-          <div class="hint">Mods only reach the app once you add them here — nothing on GitHub releases loads automatically. Two sources: the <b>Dockyard store</b> (ArcDevs re-hosts the author's mod as one release on ArcDevsio/Dockyard; the app is pinned to exactly the release you pick) or a <b>mod owner's repo</b> (the app follows their newest release live).</div>
-
-          <div class="source-switch">
-            <button class="seg active" id="srcStoreBtn" type="button">Dockyard store</button>
-            <button class="seg" id="srcRepoBtn" type="button">Mod owner's repo</button>
-          </div>
-
-          <div class="pick-repo">
-            <div id="storeBar" class="muted">
-              <div>Fetching from <b>ArcDevsio/Dockyard</b> — one release = one re-hosted mod. Pick a release below, then review before adding.</div>
-            </div>
-            <div class="in hidden" id="repoBar">
-              <div class="field">
-                <label>ArcDevs.io repo</label>
-                <select id="arcdevsRepos"><option value="">Loading…</option></select>
-              </div>
-              <div class="field">
-                <label>Owner</label>
-                <input type="text" id="fRepoOwner" placeholder="ArcDevsio">
-              </div>
-              <div class="field">
-                <label>Repo</label>
-                <input type="text" id="fRepoName" placeholder="PartEditor">
-              </div>
-            </div>
-            <button id="fetchReleasesBtn">Fetch releases</button>
-          </div>
-
-          <div class="release-list" id="releasesList"></div>
-        </div>
-      </section>
-
-      <section class="section hidden" id="sec-featured">
-        <div class="card">
-          <h2>Featured mods</h2>
-          <div class="hint">Top 5 ordered mods appear in the "Featured" section on Home.</div>
-          <div class="picker-row">
-            <div class="field">
-              <label>Add a mod</label>
-              <select id="modPicker"></select>
-            </div>
-            <button class="secondary" id="addModBtn">Add</button>
-          </div>
-          <div class="ordered-list" id="featuredModsList"></div>
-        </div>
-
-        <div class="card">
-          <h2>Featured modders</h2>
-          <div class="hint">Top 5 ordered modders appear in the horizontal "Featured Modders" row on Home.</div>
-          <div class="picker-row">
-            <div class="field">
-              <label>Add a modder</label>
-              <select id="modderPicker"></select>
-            </div>
-            <button class="secondary" id="addModderBtn">Add</button>
-          </div>
-          <div class="ordered-list" id="featuredModdersList"></div>
-        </div>
-      </section>
-
-      <section class="section hidden" id="sec-modders">
-        <div class="card">
-          <h2>Modder badges</h2>
-          <div class="hint">Pick a modder, toggle their Verified check (the blue social-style badge), and add custom badges with a name, color and icon. Everything shows next to their name across the app.</div>
-
-          <div class="field">
-            <label>Modder</label>
-            <select id="badgeModderPicker"></select>
-          </div>
-
-          <div class="badge-list" id="badgeList"></div>
-
-          <div class="badge-sep">New custom badge</div>
-
-<div class="badge-add">
-        <input type="text" id="badgeName" placeholder="Badge name (e.g. Team)" maxlength="24">
-        <input type="color" id="badgeColor" value="#8E8E93" title="Badge color">
-        <input type="color" id="badgeIconColor" value="#FFFFFF" title="Icon color">
-        <button class="secondary" id="addBadgeBtn">Add badge</button>
-      </div>
-
-          <div class="badge-icons">
-            <div class="badge-icons-label">Icon</div>
-            <button type="button" class="badge-icon selected" data-icon="" title="No icon"><ion-icon name="close" size="18"></ion-icon></button>
-            <button type="button" class="badge-icon" data-icon="medal-outline" title="Medal"><ion-icon name="medal-outline"></ion-icon></button>
-            <button type="button" class="badge-icon" data-icon="trophy-outline" title="Trophy"><ion-icon name="trophy-outline"></ion-icon></button>
-            <button type="button" class="badge-icon" data-icon="rocket-outline" title="Rocket"><ion-icon name="rocket-outline"></ion-icon></button>
-            <button type="button" class="badge-icon" data-icon="flame-outline" title="Flame"><ion-icon name="flame-outline"></ion-icon></button>
-            <button type="button" class="badge-icon" data-icon="star-outline" title="Star"><ion-icon name="star-outline"></ion-icon></button>
-            <button type="button" class="badge-icon" data-icon="heart-outline" title="Heart"><ion-icon name="heart-outline"></ion-icon></button>
-            <button type="button" class="badge-icon" data-icon="shield-checkmark-outline" title="Verified shield"><ion-icon name="shield-checkmark-outline"></ion-icon></button>
-            <button type="button" class="badge-icon" data-icon="ribbon-outline" title="Ribbon"><ion-icon name="ribbon-outline"></ion-icon></button>
-            <button type="button" class="badge-icon" data-icon="sparkles-outline" title="Sparkles"><ion-icon name="sparkles-outline"></ion-icon></button>
-            <button type="button" class="badge-icon" data-icon="flash-outline" title="Bolt"><ion-icon name="flash-outline"></ion-icon></button>
-            <button type="button" class="badge-icon" data-icon="bulb-outline" title="Idea"><ion-icon name="bulb-outline"></ion-icon></button>
-            <button type="button" class="badge-icon" data-icon="color-palette-outline" title="Palette"><ion-icon name="color-palette-outline"></ion-icon></button>
-            <button type="button" class="badge-icon" data-icon="game-controller-outline" title="Gaming"><ion-icon name="game-controller-outline"></ion-icon></button>
-            <button type="button" class="badge-icon" data-icon="airplane-outline" title="Aircraft"><ion-icon name="airplane-outline"></ion-icon></button>
-            <button type="button" class="badge-icon" data-icon="build-outline" title="Tools"><ion-icon name="build-outline"></ion-icon></button>
-            <button type="button" class="badge-icon" data-icon="hammer-outline" title="Hammer"><ion-icon name="hammer-outline"></ion-icon></button>
-            <button type="button" class="badge-icon" data-icon="flag-outline" title="Flag"><ion-icon name="flag-outline"></ion-icon></button>
-            <button type="button" class="badge-icon" data-icon="checkmark-circle-outline" title="Check"><ion-icon name="checkmark-circle-outline"></ion-icon></button>
-          </div>
-        </div>
-      </section>
-
-      <section class="section hidden" id="sec-delete">
-        <div class="card">
-          <h2>Delete from catalog</h2>
-          <div class="hint">Removes content from the app entirely. Deleting a modder also deletes all of their mods — nothing shows in the app unless it's in the catalog.</div>
-
-          <div class="picker-row">
-            <div class="field">
-              <label>Delete a mod</label>
-              <select id="delModPicker"></select>
-            </div>
-            <button class="danger" id="delModBtn">Delete</button>
-          </div>
-
-          <div class="picker-row" style="margin-top:10px;">
-            <div class="field">
-              <label>Delete a modder</label>
-              <select id="delModderPicker"></select>
-            </div>
-            <button class="danger" id="delModderBtn">Delete</button>
-          </div>
-        </div>
-      </section>
-
-      <section class="section hidden" id="sec-settings">
-        <div class="card">
-          <h2>App update</h2>
-          <div class="hint">Bump <b>latestVersion</b> above the installed app version to show users a new build is available.</div>
-          <div class="row">
-            <div class="field">
-              <label>Latest version</label>
-              <input type="text" id="fLatestVersion" placeholder="1.1.0">
-            </div>
-            <div class="field">
-              <label>Minimum version</label>
-              <input type="text" id="fMinimumVersion" placeholder="1.0.0">
-            </div>
-          </div>
-          <div class="field">
-            <label>APK download URL</label>
-            <input type="url" id="fAndroidUrl" placeholder="https://apps.heychano.xyz/dockyard/builds/dockyard.apk">
-          </div>
-          <div class="field">
-            <label>Changelog</label>
-            <textarea id="fChangelog" placeholder="What changed in this build?"></textarea>
-          </div>
-        </div>
-      </section>
-
-      <div class="card hidden" id="rawConfigCard">
-        <h2>Raw config.json</h2>
-        <div class="hint">Fine-grained control for featured picks and app updates.</div>
-        <textarea id="rawConfigTextarea" style="min-height:220px;font-family:monospace;font-size:12px;"></textarea>
-      </div>
-
-      <div class="card hidden" id="rawCatalogCard">
-        <h2>Raw catalog.json</h2>
-        <div class="hint">The full mod library. Must keep a top-level <code>mods</code> array.</div>
-        <textarea id="rawCatalogTextarea" style="min-height:220px;font-family:monospace;font-size:12px;"></textarea>
-      </div>
-    </main>
-
-    <div class="savebar">
-      <span id="saveStatus" class="muted"></span>
-      <button class="secondary" id="rawConfigToggle">Edit raw config.json</button>
-      <button class="secondary" id="rawCatalogToggle">Edit raw catalog.json</button>
-      <button id="saveBtn">Save changes</button>
-    </div>
+  <div class="savebar">
+    <span class="dirty-dot" id="dirtyDot"></span>
+    <span class="status" id="saveStatus"></span>
+    <span class="spacer"></span>
+    <button class="btn-quiet" id="rawConfigToggle">Edit config.json</button>
+    <button class="btn-quiet" id="rawCatalogToggle">Edit catalog.json</button>
+    <button class="btn-primary" id="saveBtn">Save changes</button>
   </div>
 </div>
 
+<!-- ============ ADD / EDIT MOD MODAL ============ -->
 <div class="modal-overlay hidden" id="addModal">
   <div class="modal">
     <div class="modal-head">
-      <h2>Add mod to catalog</h2>
-      <button class="ghost" id="closeAddModal">✕</button>
+      <h2 id="modalTitle">Add mod</h2>
+      <button class="btn-icon btn-quiet close" id="closeAddModal"><ion-icon name="close"></ion-icon></button>
     </div>
-
-    <div class="summary" id="addSummary"></div>
+    <div class="summary hidden" id="addSummary"></div>
 
     <div class="field">
       <label>Mod name</label>
@@ -1055,7 +657,8 @@
     </div>
     <div class="field">
       <label>Mod ID (URL-safe, unique)</label>
-      <input type="text" id="fModId" placeholder="parteditor">
+      <input type="text" id="fModId" placeholder="parteditor" aria-describedby="idHelp">
+      <div class="help" id="idHelp">The ID is the stable identifier used across the app — it can't be changed after creation.</div>
     </div>
     <div class="field">
       <label>Description</label>
@@ -1069,25 +672,42 @@
     <div class="field">
       <label id="fAuthorLabel">Author name</label>
       <input type="text" id="fAuthorName" placeholder="github username or modder name">
-      <div id="authorHint" class="hint" style="margin-top:6px;margin-bottom:0;"></div>
+      <div class="help" id="authorHint"></div>
     </div>
 
     <div class="avatar-pick">
       <div class="field">
         <label>Author avatar URL</label>
-        <input type="url" id="fAuthorAvatar" placeholder="https://github.com/owner.png">
+        <input type="url" id="fAuthorAvatar" placeholder="https://github.com/owner.png" style="font-family:'JetBrains Mono',monospace;font-size:12px;">
       </div>
       <div class="avatar-preview" id="avatarPreview">–</div>
     </div>
 
     <div class="field">
       <label>Mod icon URL (optional)</label>
-      <input type="url" id="fModIcon" placeholder="Direct image URL shown as the mod's icon">
-      <div id="modIconHint" class="hint" style="margin-top:6px;margin-bottom:0;">Leave empty to use the category icon — or a texture pack's own embedded preview once someone installs it.</div>
+      <input type="url" id="fModIcon" placeholder="Direct image URL shown as the mod's icon" style="font-family:'JetBrains Mono',monospace;font-size:12px;">
+      <div class="help">Leave empty to use the category icon — or a texture pack's own embedded preview once someone installs it.</div>
     </div>
 
     <div class="save-row">
-      <button class="secondary" id="saveModalBtn">Add to catalog</button>
+      <button class="btn-quiet" id="modalCancelBtn">Cancel</button>
+      <button class="btn-primary" id="saveModalBtn">Add to catalog</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ RAW EDITORS ============ -->
+<div class="modal-overlay hidden" id="rawModal">
+  <div class="modal" style="max-width:820px;">
+    <div class="modal-head">
+      <h2 id="rawTitle">Raw JSON</h2>
+      <button class="btn-icon btn-quiet close" id="closeRawModal"><ion-icon name="close"></ion-icon></button>
+    </div>
+    <div class="note" id="rawHint" style="margin-bottom:14px;"></div>
+    <textarea id="rawTextarea" spellcheck="false" style="min-height:320px;font-family:'JetBrains Mono',monospace;font-size:12px;width:100%;"></textarea>
+    <div class="save-row">
+      <button class="btn-quiet" id="rawCancelBtn">Close</button>
+      <button class="btn-primary" id="rawApplyBtn">Validate &amp; stage</button>
     </div>
   </div>
 </div>
@@ -1098,11 +718,12 @@
 (function () {
   "use strict";
   var $ = function (id) { return document.getElementById(id); };
-  var GH_REPO = "x64chanu/dockyard-panel";
+  var GH_REPO = "chanuuiu/dockyard-panel";
   var GH_BRANCH = "main";
-  var GH_PATH = "dockyard"; // files live in this subfolder of the repo
+  var GH_PATH = "dockyard";
   var STORE_REPO = { owner: "ArcDevsio", name: "Dockyard" };
   var TOKEN_KEY = "dockyard_admin_token";
+  var THEME_KEY = "dockyard_theme";
   var token = null;
   var connected = false;
   var lastCatalogSha = null;
@@ -1111,15 +732,21 @@
   var state = {
     featuredMods: [],
     featuredModders: [],
-    authorBadges: {}, // authorId -> { verified?, badges: [{ name, color, icon }] }
+    authorBadges: {},
     app: { latestVersion: "", minimumVersion: "", androidDownloadUrl: "", changelog: "" },
-    repo: null,      // { owner, name, url, description, arcdevs }
-    releases: [],    // GitHub release objects
+    repo: null,
+    releases: [],
     selectedRelease: null,
     arcdevsOwners: ["arcdevsio", "arcdevs"],
-    source: "store", // "store" = ArcDevsio/Dockyard (pinned) | "repo" = any owner/repo (live)
-    saving: false
+    source: "store",
+    saving: false,
+    log: [],
+    commitEvents: [],
+    storeReleases: null,
+    tokenUser: null,
+    tokenScopes: []
   };
+  var page = "overview";
 
   var CATEGORIES = [
     { v: "engines", l: "Engines" },
@@ -1132,53 +759,131 @@
     { v: "cosmetic", l: "Cosmetic → Texture Packs" }
   ];
 
+  var NAV = [
+    { id: "overview", label: "Overview", icon: "grid" },
+    { id: "mods", label: "Mods", icon: "cube" },
+    { id: "modders", label: "Modders", icon: "people" },
+    { id: "featured", label: "Featured", icon: "star" },
+    { id: "badges", label: "Badges", icon: "ribbon" },
+    { id: "activity", label: "Activity", icon: "time" },
+    { id: "analytics", label: "Analytics", icon: "stats-chart" },
+    { id: "settings", label: "Settings", icon: "settings" }
+  ];
+
+  var BADGE_ICON_LIBRARY = [
+    { name: "code-slash", label: "Developer" },
+    { name: "play", label: "Creator" },
+    { name: "link", label: "Partner" },
+    { name: "shield", label: "Moderator" },
+    { name: "git-branch", label: "Contributor" },
+    { name: "color-palette", label: "Designer" },
+    { name: "bug", label: "Tester" },
+    { name: "people", label: "Community" },
+    { name: "heart", label: "Supporter" },
+    { name: "medal", label: "Veteran" },
+    { name: "language", label: "Translator" },
+    { name: "star", label: "Featured" },
+    { name: "card", label: "Staff" },
+    { name: "compass", label: "Guide" },
+    { name: "rocket", label: "Rocket" },
+    { name: "trophy", label: "Trophy" },
+    { name: "flame", label: "Flame" },
+    { name: "flash", label: "Bolt" },
+    { name: "hammer", label: "Hammer" },
+    { name: "beaker", label: "Lab" },
+    { name: "globe", label: "Global" }
+  ];
+
+  var dirty = false;
+
+  /* ---------------- utils ---------------- */
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+  function humanize(s) {
+    if (!s) return "";
+    return s.replace(/[-_]/g, " ").replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+  }
+  function slugify(s) {
+    if (!s) return "mod";
+    return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "mod";
+  }
+  function fmtSize(bytes) {
+    if (bytes == null) return "—";
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / 1048576).toFixed(2) + " MB";
+  }
+  function fmtInt(n) {
+    if (n == null) return "–";
+    return Number(n).toLocaleString("en-US");
+  }
+  function fmtDate(iso) {
+    if (!iso) return "–";
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return "–";
+    return d.toISOString().slice(0, 10);
+  }
+  function fmtDT(iso) {
+    if (!iso) return "–";
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return "–";
+    return d.toISOString().slice(0, 10) + " " + d.toISOString().slice(11, 16) + " UTC";
+  }
+  function rel(iso) {
+    if (!iso) return "–";
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return "–";
+    var s = (Date.now() - d.getTime()) / 1000;
+    if (s < 60) return "just now";
+    if (s < 3600) return Math.round(s / 60) + "m ago";
+    if (s < 86400) return Math.round(s / 3600) + "h ago";
+    if (s < 86400 * 30) return Math.round(s / 86400) + "d ago";
+    return fmtDate(iso);
+  }
+
   function toast(msg, isError, ms) {
     var el = $("toast");
     el.textContent = msg;
     el.className = "toast" + (isError ? " error" : "");
     requestAnimationFrame(function () { el.classList.add("show"); });
     clearTimeout(el._t);
-    el._t = setTimeout(function () { el.classList.remove("show"); }, ms || 2600);
+    el._t = setTimeout(function () { el.classList.remove("show"); }, ms || 2800);
+  }
+
+  function setDirty() {
+    dirty = true;
+    $("dirtyDot").classList.add("on");
+  }
+  function clearDirty() {
+    dirty = false;
+    $("dirtyDot").classList.remove("on");
   }
 
   function setStatus(label, online) {
     connected = online;
-    $("connStatus").textContent = label;
-    $("connStatus").className = "status " + (online ? "online" : "offline");
-    $("sideStatus").textContent = (online ? "● " : "") + label;
+    $("connStatus").querySelector("span:last-child").textContent = label;
+    $("connStatus").className = "conn-pill " + (online ? "online" : "offline");
+    $("sideStatus").querySelector("span:last-child").textContent = label;
     $("sideStatus").className = "conn " + (online ? "online" : "offline");
   }
 
-  function fmtSize(bytes) {
-    if (!bytes && bytes !== 0) return "";
-    if (bytes < 1024) return bytes + " B";
-    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
-    return (bytes / 1048576).toFixed(2) + " MB";
-  }
+  /* ---------------- API ---------------- */
 
-  function humanize(s) {
-    if (!s) return "";
-    return s.replace(/[-_]/g, " ").replace(/\b\w/g, function (c) { return c.toUpperCase(); });
-  }
-
-  function esc(s) {
-    return String(s).replace(/[&<>"']/g, function (c) {
-      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
-    });
-  }
-
-  function slugify(s) {
-    if (!s) return "mod";
-    return s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "mod";
-  }
-
-  function isArcDevsOwner(owner) {
-    return state.arcdevsOwners.indexOf(String(owner).toLowerCase()) !== -1;
-  }
-
-  function isStoreRepo(owner, name) {
-    return String(owner).toLowerCase() === STORE_REPO.owner.toLowerCase() &&
-      String(name).toLowerCase() === STORE_REPO.name.toLowerCase();
+  async function apiFetch(path, init) {
+    var headers = { Accept: "application/vnd.github+json" };
+    if (token) headers["Authorization"] = "Bearer " + token;
+    if (init && init.body) headers["Content-Type"] = "application/json";
+    var res = await fetch("https://api.github.com/" + path, Object.assign({ headers: headers }, init));
+    var data = null;
+    try { data = await res.json(); } catch (e) {}
+    if (!res.ok) {
+      throw new Error("GitHub API " + res.status + ": " + ((data && (data.message || data.error)) || res.statusText));
+    }
+    return data;
   }
 
   async function rawFetch(path, init) {
@@ -1189,8 +894,7 @@
     var data = null;
     try { data = await res.json(); } catch (e) {}
     if (!res.ok) {
-      var err = (data && data.error) ? data.error : ("HTTP " + res.status);
-      throw new Error(err);
+      throw new Error((data && data.error) ? data.error : ("HTTP " + res.status));
     }
     return data;
   }
@@ -1209,25 +913,10 @@
     return "repos/" + GH_REPO + "/contents/" + GH_PATH + "/" + file;
   }
 
-  async function apiFetch(path, init) {
-    var headers = { Accept: "application/vnd.github+json" };
-    if (token) headers["Authorization"] = "Bearer " + token;
-    if (init && init.body) headers["Content-Type"] = "application/json";
-    var res = await fetch("https://api.github.com/" + path, Object.assign({ headers: headers }, init));
-    var data = null;
-    try { data = await res.json(); } catch (e) {}
-    if (!res.ok) {
-      throw new Error("GitHub API " + res.status + ": " + ((data && (data.message || data.error)) || res.statusText));
-    }
-    return data;
-  }
-
   function toBase64(text) {
     return btoa(unescape(encodeURIComponent(text)));
   }
 
-  // Pushes one of the dockyard JSON files back into the repo (Contents API).
-  // The GitHub Pages rebuild triggered by the push takes ~1 min to go live.
   async function writeGitFile(file, contentObj) {
     var content = toBase64(JSON.stringify(contentObj));
     for (var attempt = 0; attempt < 2; attempt++) {
@@ -1243,27 +932,44 @@
           method: "PUT",
           body: JSON.stringify(payload)
         });
-        if (file === "catalog.json") lastCatalogSha = result.sha;
-        else lastConfigSha = result.sha;
+        if (file === "catalog.json") { lastCatalogSha = result.sha; }
+        else { lastConfigSha = result.sha; }
         return result;
       } catch (e) {
-        // Concurrent edit (stale sha) → refetch and retry once.
         if (attempt === 0) continue;
         throw e;
       }
     }
   }
 
-  function showLoggedIn() {
-    $("loginCard").classList.add("hidden");
-    $("app").classList.remove("hidden");
-    showSection(state.activeSection || "mods");
+  /* ---------------- auth ---------------- */
+
+  async function validateToken(candidate) {
+    var t = String(candidate || "").trim();
+    if (!t) {
+      throw new Error("Enter your GitHub token first — it is required to open the panel.");
+    }
+    var res = await fetch("https://api.github.com/user", {
+      headers: { Authorization: "Bearer " + t, Accept: "application/vnd.github+json" }
+    });
+    if (!res.ok) {
+      throw new Error("GitHub rejected this token (" + res.status + "). It may be missing, expired, revoked, or mistyped.");
+    }
+    var scopes = (res.headers.get("X-OAuth-Scopes") || "").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+    if (scopes.length && scopes.indexOf("repo") === -1 && scopes.indexOf("public_repo") === -1) {
+      throw new Error("This token can't write to the repo. Use a classic PAT with the 'repo' scope, or a fine-grained PAT with Contents write access to chanuuiu/dockyard-panel.");
+    }
+    return { token: t, scopes: scopes };
   }
 
-  function showLoggedOut() {
-    $("app").classList.add("hidden");
-    $("loginCard").classList.remove("hidden");
+  function friendlyApiError(e) {
+    var msg = e.message || String(e);
+    if (/401/.test(msg)) return msg + " — your token may be expired or invalid. Re-login with a fresh token.";
+    if (/403/.test(msg)) return msg + " — your token probably lacks write access (needs the repo scope).";
+    return msg;
   }
+
+  /* ---------------- remote load ---------------- */
 
   async function applyRemote() {
     var [catalogData, configData] = await Promise.all([
@@ -1282,225 +988,61 @@
     state.featuredModders = Array.isArray(configData.featuredModders) ? configData.featuredModders : [];
     state.authorBadges = (configData.authorBadges && typeof configData.authorBadges === "object" && !Array.isArray(configData.authorBadges))
       ? configData.authorBadges : {};
-    // Migrate legacy array form (authorId -> badges[]) to the new shape.
     Object.keys(state.authorBadges).forEach(function (id) {
       var e = state.authorBadges[id];
       if (Array.isArray(e)) state.authorBadges[id] = { badges: e.filter(function (b) { return b && typeof b === "object"; }) };
     });
     state.app = Object.assign({ latestVersion: "", minimumVersion: "", androidDownloadUrl: "", changelog: "" }, configData.app || {});
+    clearDirty();
     render();
+    loadCommitHistory();
+    loadStoreReleases();
   }
 
-  async function checkWriteScopes() {
+  async function loadCommitHistory() {
     try {
-      var res = await fetch("https://api.github.com/user", {
-        headers: { Authorization: "Bearer " + token, Accept: "application/vnd.github+json" }
+      var commits = await apiFetch("repos/" + GH_REPO + "/commits?path=" + encodeURIComponent(GH_PATH) + "&per_page=25");
+      state.commitEvents = commits.map(function (c) {
+        var msg = (c.commit && c.commit.message) || "";
+        var file = "";
+        var m = msg.match(/update\s+(config|catalog)\.json/i);
+        if (m) file = m[1] + ".json";
+        return {
+          type: "config",
+          entity: file || "repo",
+          detail: msg.split("\n")[0],
+          ts: c.commit && c.commit.author ? c.commit.author.date : null,
+          actor: (c.author && c.author.login) || (c.commit && c.commit.author && c.commit.author.name) || "unknown",
+          self: false
+        };
       });
-      if (!res.ok) return;
-      var scopes = (res.headers.get("X-OAuth-Scopes") || "").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
-      if (scopes.length && scopes.indexOf("repo") === -1 && scopes.indexOf("public_repo") === -1) {
-        toast("Heads up: this token has no repo write scope — saves/deletes will fail. Use a token with the repo scope.", true, 8000);
-        $("sideStatus").className = "conn offline";
-      }
-    } catch (e) { /* ignore */ }
-  }
-
-  // Hard gate: the dashboard must NOT unlock until the submitted token is a
-  // real GitHub token that can actually write to the repo. Empty input, an
-  // expired/revoked token (HTTP 401), or a token without repo write scope are
-  // all rejected here — anonymous read access to the public repo is not enough.
-  async function validateToken(candidate) {
-    var t = String(candidate || "").trim();
-    if (!t) {
-      throw new Error("Enter your GitHub token first — it is required to open the panel.");
-    }
-    var res = await fetch("https://api.github.com/user", {
-      headers: { Authorization: "Bearer " + t, Accept: "application/vnd.github+json" }
-    });
-    if (!res.ok) {
-      throw new Error("GitHub rejected this token (" + res.status + "). It may be missing, expired, revoked, or mistyped.");
-    }
-    var scopes = (res.headers.get("X-OAuth-Scopes") || "").split(",").map(function (s) { return s.trim(); }).filter(Boolean);
-    if (scopes.length && scopes.indexOf("repo") === -1 && scopes.indexOf("public_repo") === -1) {
-      throw new Error("This token can't write to the repo. Use a classic PAT with the 'repo' scope, or a fine-grained PAT with Contents write access to x64chanu/dockyard-panel.");
-    }
-    return t;
-  }
-
-  function friendlyApiError(e) {
-    var msg = e.message || String(e);
-    if (/401/.test(msg)) return msg + " — your token may be expired or invalid. Re-login with a fresh token.";
-    if (/403/.test(msg)) return msg + " — your token probably lacks write access (needs the repo scope).";
-    return msg;
-  }
-
-  $("connectBtn").addEventListener("click", async function () {
-    $("loginError").textContent = "";
-    $("connectBtn").disabled = true;
-    try {
-      token = await validateToken($("tokenInput").value);
-      await applyRemote();
-      localStorage.setItem(TOKEN_KEY, token);
-      showLoggedIn();
-      setStatus("Online", true);
-      toast("Connected — live updates on");
-      loadArcDevsRepos();
-      checkWriteScopes();
     } catch (e) {
-      token = null;
-      $("loginError").textContent = (e && e.message) ? e.message : "Couldn't connect.";
-      setStatus("Disconnected", false);
-    } finally {
-      $("connectBtn").disabled = false;
+      state.commitEvents = [];
     }
-  });
+    if (page === "activity" || page === "overview") renderPage(page);
+  }
 
-  // Restore a saved session on load and keep everything in sync.
-  (async function boot() {
-    var saved = localStorage.getItem(TOKEN_KEY);
-    if (!saved) return;
+  async function loadStoreReleases() {
     try {
-      token = await validateToken(saved);
-      await applyRemote();
-      showLoggedIn();
-      setStatus("Online", true);
-      loadArcDevsRepos();
-      checkWriteScopes();
+      var releases = await gh("https://api.github.com/repos/" + STORE_REPO.owner + "/" + STORE_REPO.name + "/releases?per_page=30");
+      state.storeReleases = releases.filter(function (r) { return !r.draft; }).map(function (r) {
+        return {
+          tag: r.tag_name,
+          name: r.name || r.tag_name,
+          published: r.published_at,
+          assets: (r.assets || []).map(function (a) {
+            return { name: a.name, size: a.size, downloads: a.download_count };
+          }),
+          totalDownloads: (r.assets || []).reduce(function (s, a) { return s + (a.download_count || 0); }, 0)
+        };
+      });
     } catch (e) {
-      localStorage.removeItem(TOKEN_KEY);
-      token = null;
-      $("loginError").textContent = "Saved session rejected: " + (e && e.message ? e.message : e) + " — sign in again.";
+      state.storeReleases = null;
     }
-  })();
-
-  // No auto-refresh — content is loaded once on connect and only refreshed
-  // when you hit Fetch in the top bar (or reload the page).
-
-  $("logoutBtn").addEventListener("click", function () {
-    localStorage.removeItem(TOKEN_KEY);
-    token = null;
-    catalog = { mods: [] };
-    state.releases = [];
-    state.selectedRelease = null;
-    setStatus("Disconnected", false);
-    showLoggedOut();
-    toast("Logged out.");
-  });
-
-  $("refreshBtn").addEventListener("click", async function () {
-    var btn = $("refreshBtn");
-    btn.disabled = true;
-    try {
-      await applyRemote();
-      loadArcDevsRepos();
-      toast("Fetched the latest remote content.");
-    } catch (e) {
-      toast("Fetch failed: " + e.message, true);
-    } finally {
-      btn.disabled = false;
-    }
-  });
-
-  function showSection(name) {
-    state.activeSection = name;
-    document.querySelectorAll(".section").forEach(function (s) {
-      s.classList.toggle("hidden", s.id !== "sec-" + name);
-    });
-    document.querySelectorAll("[data-sec]").forEach(function (b) {
-      b.classList.toggle("active", b.getAttribute("data-sec") === name);
-    });
+    if (page === "analytics") renderPage("analytics");
   }
 
-  document.querySelectorAll("[data-sec]").forEach(function (b) {
-    b.addEventListener("click", function () { showSection(b.getAttribute("data-sec")); });
-  });
-
-  function render() {
-    $("fLatestVersion").value = state.app.latestVersion;
-    $("fMinimumVersion").value = state.app.minimumVersion;
-    $("fAndroidUrl").value = state.app.androidDownloadUrl;
-    $("fChangelog").value = state.app.changelog;
-
-    renderCatalogManagers();
-    renderBadgeModders();
-    renderCatalogList();
-
-    renderPicker("modPicker", catalog.mods.map(function (m) {
-      return { id: m.id, label: m.name + "  (by " + m.author.name + ")" };
-    }), state.featuredMods);
-    renderOrdered("featuredModsList", state.featuredMods, "mods");
-
-    var modders = modderList();
-    renderPicker("modderPicker", modders.map(function (m) {
-      return { id: m.id, label: m.name + "  (" + m.modCount + " mods)" };
-    }), state.featuredModders);
-    renderOrdered("featuredModdersList", state.featuredModders, "modders");
-
-    if (!$("rawConfigCard").classList.contains("hidden")) {
-      $("rawConfigTextarea").value = JSON.stringify(collectConfig(), null, 2);
-    }
-    if (!$("rawCatalogCard").classList.contains("hidden")) {
-      $("rawCatalogTextarea").value = JSON.stringify(catalog, null, 2);
-    }
-  }
-
-  function renderCatalogList() {
-    var node = $("catalogList");
-    node.innerHTML = "";
-    var modders = modderList();
-    var badged = 0;
-    Object.keys(state.authorBadges).forEach(function (id) {
-      var b = state.authorBadges[id];
-      if (b && (b.verified || (b.badges && b.badges.length))) badged++;
-    });
-    $("statMods").textContent = catalog.mods.length;
-    $("statModders").textContent = modders.length;
-    $("statFeatured").textContent = state.featuredMods.length;
-    $("statBadged").textContent = badged;
-
-    if (!catalog.mods.length) {
-      var empty = document.createElement("div");
-      empty.className = "empty-list";
-      empty.textContent = "The catalog is empty — add mods from the card below.";
-      node.appendChild(empty);
-      return;
-    }
-
-    catalog.mods.forEach(function (m) {
-      var el = document.createElement("div");
-      el.className = "ordered-item";
-
-      var av = document.createElement("div");
-      av.className = "avatar";
-      av.textContent = (m.author.name || "?").slice(0, 2).toUpperCase();
-
-      var meta = document.createElement("div");
-      meta.className = "meta";
-      var nameEl = document.createElement("div");
-      nameEl.className = "name";
-      nameEl.textContent = m.name + (m.pinned ? "  ⭐" : "");
-      var idEl = document.createElement("div");
-      idEl.className = "id";
-      idEl.textContent = "by " + m.author.name + (m.latestRelease ? "  ·  v" + m.latestRelease.version : "");
-      meta.appendChild(nameEl);
-      meta.appendChild(idEl);
-
-      var tools = document.createElement("div");
-      tools.className = "tools";
-      tools.appendChild(mkTool("✕", true, function () {
-        if (state.saving) return;
-        if (!window.confirm('Delete "' + m.name + '" from the catalog?\n\nIt also stops being featured.')) return;
-        catalog.mods = catalog.mods.filter(function (x) { return x.id !== m.id; });
-        state.featuredMods = state.featuredMods.filter(function (f) { return f !== m.id; });
-        persistCatalogAfterDelete();
-      }, true));
-
-      el.appendChild(av);
-      el.appendChild(meta);
-      el.appendChild(tools);
-      node.appendChild(el);
-    });
-  }
+  /* ---------------- derived data ---------------- */
 
   function modderList() {
     var byId = {};
@@ -1512,157 +1054,801 @@
     return Object.keys(byId).map(function (k) { return byId[k]; });
   }
 
-  function renderCatalogManagers() {
-    var modSel = $("delModPicker");
-    modSel.innerHTML = '<option value="">Choose…</option>';
-    catalog.mods.forEach(function (m) {
-      var opt = document.createElement("option");
-      opt.value = m.id;
-      opt.textContent = m.name + "  (by " + m.author.name + ")";
-      modSel.appendChild(opt);
+  function modderMeta(id) {
+    var mods = catalog.mods.filter(function (m) { return m.author.id === id; });
+    var total = 0;
+    var latest = null;
+    mods.forEach(function (m) {
+      total += (m.downloadCount || 0);
+      if (m.latestRelease && m.latestRelease.publishedAt &&
+          (!latest || new Date(m.latestRelease.publishedAt) > new Date(latest))) {
+        latest = m.latestRelease.publishedAt;
+      }
     });
-
-    var modderSel = $("delModderPicker");
-    modderSel.innerHTML = '<option value="">Choose…</option>';
-    modderList().forEach(function (m) {
-      var opt = document.createElement("option");
-      opt.value = m.id;
-      opt.textContent = m.name + "  (" + m.modCount + " mod" + (m.modCount === 1 ? "" : "s") + ")";
-      modderSel.appendChild(opt);
-    });
+    return { mods: mods, totalDownloads: total, latest: latest };
   }
 
-  async function persistCatalogAfterDelete() {
-    if (state.saving) return;
-    state.saving = true;
-    try {
-      await writeGitFile("catalog.json", catalog);
-      await writeGitFile("config.json", collectConfig());
-      toast("Deleted. Saved to GitHub — Pages updates in ~1 min.");
-      render();
-    } catch (e) {
-      toast("Delete failed: " + friendlyApiError(e), true);
-      render();
-    } finally {
-      state.saving = false;
+  function isFeaturedMod(id) { return state.featuredMods.indexOf(id) !== -1; }
+  function isFeaturedModder(id) { return state.featuredModders.indexOf(id) !== -1; }
+  function modderSettings(id) { return (id && state.authorBadges && state.authorBadges[id]) || null; }
+  function modderBadges(modder) { return (modderSettings(modder) && modderSettings(modder).badges) || []; }
+
+  function totalDownloads() {
+    return catalog.mods.reduce(function (s, m) { return s + (m.downloadCount || 0); }, 0);
+  }
+  function badgedCount() {
+    var n = 0;
+    Object.keys(state.authorBadges).forEach(function (id) {
+      var b = state.authorBadges[id];
+      if (b && (b.verified || (b.badges && b.badges.length))) n++;
+    });
+    return n;
+  }
+
+  /* ---------------- activity log ---------------- */
+
+  function logEvent(type, entity, detail) {
+    state.log.unshift({ type: type, entity: entity || "", detail: detail || "", ts: new Date().toISOString(), actor: "you", self: true });
+    if (state.log.length > 60) state.log.length = 60;
+  }
+  function allEvents() {
+    var merged = state.commitEvents.map(function (e) { return Object.assign({}, e, { self: false }); })
+      .concat(state.log.map(function (e) { return Object.assign({}, e, { self: true }); }));
+    merged.sort(function (a, b) { return (a.ts < b.ts) ? 1 : (a.ts > b.ts ? -1 : 0); });
+    return merged;
+  }
+
+  /* ---------------- theme ---------------- */
+
+  function applyTheme(theme, persist) {
+    if (theme === "light") document.documentElement.setAttribute("data-theme", "light");
+    else document.documentElement.removeAttribute("data-theme");
+    if (persist) {
+      try { localStorage.setItem(THEME_KEY, theme); } catch (e) {}
     }
+    var btn = $("themeBtn");
+    if (btn) btn.innerHTML = '<ion-icon name="' + (theme === "light" ? "moon" : "sunny") + '"></ion-icon>';
   }
+  $("themeBtn").addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+    applyTheme(cur === "light" ? "dark" : "light", true);
+    document.body.classList.add("theme-anim");
+    setTimeout(function () { document.body.classList.remove("theme-anim"); }, 260);
+    renderPage(page);
+  });
 
-  function renderPicker(selectId, options, selected) {
-    var sel = $(selectId);
-    sel.innerHTML = '<option value="">Choose…</option>';
-    options.forEach(function (o) {
-      if (selected.indexOf(o.id) !== -1) return;
-      var opt = document.createElement("option");
-      opt.value = o.id;
-      opt.textContent = o.label;
-      sel.appendChild(opt);
+  /* ---------------- navigation + layout ---------------- */
+
+  function buildNav() {
+    var nav = $("sidenav");
+    nav.innerHTML = "";
+    NAV.forEach(function (n, i) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "nav" + (page === n.id ? " active" : "");
+      b.setAttribute("data-page", n.id);
+      b.innerHTML = '<ion-icon name="' + n.icon + '"></ion-icon><span>' + n.label + "</span>";
+      b.addEventListener("click", function () { goPage(n.id); });
+      nav.appendChild(b);
     });
   }
 
-  function renderOrdered(nodeId, ids, type) {
-    var node = $(nodeId);
-    node.innerHTML = "";
+  function goPage(id) {
+    page = id;
+    closeSidebar();
+    buildNav();
+    renderPage(id);
+  }
+
+  function closeSidebar() {
+    $("sidebar").classList.remove("open");
+    $("overlay").classList.remove("show");
+  }
+
+  $("burgerBtn").addEventListener("click", function () {
+    $("sidebar").classList.add("open");
+    $("overlay").classList.add("show");
+  });
+  $("overlay").addEventListener("click", closeSidebar);
+
+  function crumb() {
+    var n = NAV.filter(function (x) { return x.id === page; })[0];
+    return "Dockyard Admin <b>/</b> " + (n ? n.label : "");
+  }
+
+  /* ---------------- render: overview ---------------- */
+
+  function renderOverview() {
+    var modders = modderList();
+    var featured = state.featuredMods;
+    var featsModders = state.featuredModders;
+    var stats = [
+      { num: fmtInt(catalog.mods.length), lbl: "Mods" },
+      { num: fmtInt(modders.length), lbl: "Modders" },
+      { num: fmtInt(featured.length), lbl: "Featured mods" },
+      { num: fmtInt(featsModders.length), lbl: "Featured modders" },
+      { num: fmtInt(badgedCount()), lbl: "Badged modders" },
+      { num: fmtInt(totalDownloads()), lbl: "Downloads" }
+    ];
+    var html = metricStrip(stats);
+
+    var evs = allEvents().slice(0, 8);
+    html += panel("Recent activity",
+      '<button class="btn-quiet small" onclick="window.__go(\'activity\')">View all</button>', {
+        body: evs.length ? timeline(evs) : '<div class="empty">No activity recorded yet.</div>',
+        wrap: true
+      });
+
+    var byUpdated = catalog.mods.slice().sort(function (a, b) {
+      return (b.latestRelease && b.latestRelease.publishedAt || "") < (a.latestRelease && a.latestRelease.publishedAt || "") ? -1 : 1;
+    }).slice(0, 5);
+    html += panel("Latest catalog changes", "", {
+      body: '<div class="table-wrap"><table class="tbl" style="min-width:480px;"><thead><tr>' +
+        '<th>Mod</th><th>Author</th><th>Version</th><th>Updated</th></tr></thead><tbody>' +
+        byUpdated.map(function (m) { return "<tr>" +
+          "<td><div class=\"cell-title\">" + nameBlock(m) + "</div></td>" +
+          "<td>" + esc(m.author.name) + "</td>" +
+          "<td class=\"tbl-mono\">" + esc(m.latestRelease ? "v" + m.latestRelease.version : "—") + "</td>" +
+          "<td class=\"tbl-mono\">" + fmtDate(m.latestRelease && m.latestRelease.publishedAt) + "</td></tr>"; }).join("") +
+        "</tbody></table></div>",
+      wrap: true
+    });
+
+    var store = state.storeReleases;
+    var storeBlock;
+    if (store) {
+      var storeTotal = store.reduce(function (s, r) { return s + r.totalDownloads; }, 0);
+      storeBlock = ' <div class="table-wrap"><table class="tbl" style="min-width:520px;"><thead><tr>' +
+        "<th>Release</th><th>Published</th><th>Asset</th><th>Downloads</th></tr></thead><tbody>" +
+        store.slice(0, 8).map(function (r) {
+          var a = r.assets[0] || {};
+          return "<tr><td class=\"tbl-mono\">" + esc(r.tag) + "</td>" +
+            "<td class=\"tbl-mono\">" + fmtDate(r.published) + "</td>" +
+            "<td class=\"tbl-mono\">" + esc(a.name || "—") + "</td>" +
+            '<td class="tbl-mono">' + fmtInt(a.downloads || 0) + "</td></tr>";
+        }).join("") +
+        '<tr><td class="tbl-mono">Σ</td><td></td><td></td><td class="tbl-mono">' + fmtInt(storeTotal) + "</td></tr>" +
+        "</tbody></table></div>";
+    } else if (store === null) {
+      storeBlock = '<div class="empty">Store release data wasn&rsquo;t reachable.</div>';
+    } else {
+      storeBlock = '<div class="empty">Loading store releases&hellip;</div>';
+    }
+    html += panel("Store release downloads (" + STORE_REPO.owner + "/" + STORE_REPO.name + ")", "", { body: storeBlock, wrap: true });
+
+    return html;
+  }
+
+  function metricStrip(stats) {
+    return '<div class="metric-strip">' + stats.map(function (s) {
+      return '<div class="metric"><div class="num">' + s.num + '</div><div class="lbl">' + esc(s.lbl) + "</div>" +
+        (s.delta ? '<div class="delta">' + s.delta + "</div>" : "") + "</div>";
+    }).join("") + "</div>";
+  }
+
+  function nameBlock(m) {
+    return '<div class="mono" style="width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);background:var(--surface);font-size:10px;color:var(--fg-mute);flex-shrink:0;">' +
+      esc((m.name || "?").slice(0, 2).toUpperCase()) +
+      '</div><div><div class="tname">' + esc(m.name) + "</div><div class=\"tid\">" + esc(m.id) + "</div></div>";
+  }
+
+  function modIcon(m) {
+    return '<div class="mono" style="width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);background:var(--surface);font-size:10px;color:var(--fg-mute);flex-shrink:0;">' +
+      (m.iconUrl ? '<img src="' + esc(m.iconUrl) + '" style="width:100%;height:100%;object-fit:cover;' + (m.iconUrl ? "background:var(--bg);" : "") + '" onerror="this.style.display=\'none\';this.nextSibling.style.display=\'inline\'">' : "") +
+      '<span ' + (m.iconUrl ? 'style="display:none"' : "") + ">" + esc((m.name || "?").slice(0, 2).toUpperCase()) + "</span></div>";
+  }
+
+  function avatar(url, txt) {
+    return '<div class="avatar">' + (url ? '<img src="' + esc(url) + '" referrerpolicy="no-referrer" onerror="this.style.display=\'none\'">' : "") +
+      '<span' + (url ? ' style="display:none"' : "") + ">" + esc((txt || "?").slice(0, 2).toUpperCase()) + "</span></div>";
+  }
+
+  function panel(title, rightSlot, opts) {
+    opts = opts || {};
+    var pad = opts.wrap ? '<div style="margin-top:2px;">' + opts.body + "</div>" : opts.body;
+    return '<div class="panel"><div class="panel-head"><h2>' + title + "</h2>" +
+      (opts.sub ? '<span class="sub">' + opts.sub + "</span>" : "") +
+      '<span class="spacer"></span>' + (rightSlot || "") + "</div>" + pad + "</div>";
+  }
+
+  function vmark(id) {
+    var s = modderSettings(id);
+    return (s && s.verified) ?
+      '<span class="vmark" title="Verified"><ion-icon name="checkmark-circle"></ion-icon></span>' : "";
+  }
+
+  function badgePills(id, max) {
+    var bs = modderBadges(id).slice(0, max == null ? 4 : max);
+    var more = modderBadges(id).length - bs.length;
+    return bs.map(function (b) {
+      return '<span class="pill"><span class="swatch" style="background:' + esc(b.color || "#8E8E93") + '"></span>' +
+        (b.icon ? '<ion-icon name="' + esc(b.icon) + '"></ion-icon>' : "") + esc(b.name) + "</span>";
+    }).join(" ") + (more > 0 ? '<span class="tag05">+' + more + "</span>" : "");
+  }
+
+  // ---------------- MODS table state ----------------
+
+  var modTable = { q: "", cat: "all", sort: "updated", page: 1, perPage: 12, viewAuthor: "" };
+
+  function renderMods() {
+    var list = catalog.mods.slice();
+    if (modTable.viewAuthor) {
+      list = list.filter(function (m) { return m.author.id === modTable.viewAuthor || m.author.name === modTable.viewAuthor; });
+    }
+    if (modTable.q) {
+      var q = modTable.q.toLowerCase();
+      list = list.filter(function (m) {
+        return m.name.toLowerCase().indexOf(q) !== -1 ||
+          m.id.toLowerCase().indexOf(q) !== -1 ||
+          (m.author.name || "").toLowerCase().indexOf(q) !== -1 ||
+          (m.author.id || "").toLowerCase().indexOf(q) !== -1;
+      });
+    }
+    if (modTable.cat !== "all") {
+      list = list.filter(function (m) { return m.categories && m.categories.indexOf(modTable.cat) !== -1; });
+    }
+    list.sort(function (a, b) {
+      switch (modTable.sort) {
+        case "name": return (a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+        case "downloads": return (b.downloadCount || 0) - (a.downloadCount || 0);
+        case "author": return (a.author.name < b.author.name ? -1 : 1);
+        default:
+          return ((b.latestRelease && b.latestRelease.publishedAt) || "") < ((a.latestRelease && a.latestRelease.publishedAt) || "") ? -1 : 1;
+      }
+    });
+
+    var total = list.length;
+    var pages = Math.max(1, Math.ceil(total / modTable.perPage));
+    if (modTable.page > pages) modTable.page = pages;
+    var p = modTable.page - 1;
+    var rows = list.slice(p * modTable.perPage, p * modTable.perPage + modTable.perPage);
+
+    var catOptions = '<option value="all">All categories</option>' + CATEGORIES.map(function (c) {
+      return '<option value="' + c.v + '"' + (modTable.cat === c.v ? " selected" : "") + ">" + c.l + "</option>";
+    }).join("");
+
+    var clearAuthor = modTable.viewAuthor ? '<button class="btn-quiet small" onclick="window.__go(\'mods\');window.__modClearAuthor()">clear author filter</button>' : "";
+
+    var body;
+    if (!total) {
+      body = '<div class="empty">' + (modTable.q || modTable.cat !== "all" || modTable.viewAuthor ?
+        "No mods match <b>“" + esc(modTable.q) + "”</b>." :
+        "The catalog is empty — add a mod from the panel below.") + "</div>";
+    } else {
+      body = '<div class="table-wrap"><table class="tbl"><thead><tr>' +
+        "<th>Mod</th><th>Author</th><th>Version</th><th>Downloads</th><th>Status</th><th>Featured</th><th>Updated</th><th>Actions</th>" +
+        "</tr></thead><tbody>" +
+        rows.map(function (m) {
+          var status = m.pinned ? '<span class="tag05 on"><ion-icon name="link"></ion-icon>Pinned</span>' : '<span class="tag05">Live</span>';
+          var isF = isFeaturedMod(m.id);
+          return "<tr>" +
+            "<td><div class=\"cell-title\">" + modIcon(m) + "<div><div class=\"tname\">" + esc(m.name) + "</div><div class=\"tid\">" + esc(m.id) + "</div></div></div></td>" +
+            "<td>" + esc(m.author.name) + " " + vmark(m.author.id) + "</td>" +
+            '<td><span class="tbl-mono">' + esc(m.latestRelease ? "v" + m.latestRelease.version : "—") + "</span></td>" +
+            '<td><span class="tbl-mono">' + fmtInt(m.downloadCount || 0) + "</span></td>" +
+            "<td>" + status + "</td>" +
+            '<td>' + (isF ? '<span class="tag05 on"><ion-icon name="star"></ion-icon>Yes</span>' : '<span class="faint">·</span>') + "</td>" +
+            '<td><span class="tbl-mono">' + fmtDate(m.latestRelease && m.latestRelease.publishedAt) + "</span></td>" +
+            '<td><div class="cell-actions">' +
+            '<button class="btn-icon btn-quiet" title="Edit" onclick="window.__modEdit(\'' + esc(m.id) + '\')"><ion-icon name="create"></ion-icon></button>' +
+            '<button class="btn-icon btn-quiet" title="' + (isF ? "Unfeature" : "Feature") + '" onclick="window.__modFeature(\'' + esc(m.id) + '\')"><ion-icon name="' + (isF ? "star" : "star-outline") + '"></ion-icon></button>' +
+            '<button class="btn-icon btn-quiet" title="Remove" onclick="window.__modRemove(\'' + esc(m.id) + '\')"><ion-icon name="trash"></ion-icon></button>' +
+            "</div></td></tr>";
+        }).join("") +
+        "</tbody></table></div>" +
+        '<div class="panel-foot"><div class="pagination"><span class="mono-count">' + fmtInt(total) + " mods</span>" +
+        '<select id="perPageSel" onchange="window.__perPage(this.value)">' +
+        [12, 25, 50].map(function (n) { return '<option' + (modTable.perPage === n ? " selected" : "") + ">" + n + "</option>"; }).join("") +
+        "</select>" +
+        '<button class="btn-quiet btn-icon" ' + (modTable.page <= 1 ? "disabled" : "") + ' onclick="window.__modPage(-1)"><ion-icon name="chevron-back"></ion-icon></button>' +
+        '<span class="mono-count">' + modTable.page + " / " + pages + "</span>" +
+        '<button class="btn-quiet btn-icon" ' + (modTable.page >= pages ? "disabled" : "") + ' onclick="window.__modPage(1)"><ion-icon name="chevron-forward"></ion-icon></button>' +
+        "</div></div>";
+    }
+
+    var addArea =
+      '<div class="seg">' +
+      '<button id="srcStoreBtn" class="active" onclick="window.__src(\'store\')">Dockyard store</button>' +
+      '<button id="srcRepoBtn" onclick="window.__src(\'repo\')">Mod owner\'s repo</button>' +
+      "</div>";
+
+    return '<div class="panel"><div class="panel-head"><h2>Mods</h2><span class="sub">' + fmtInt(catalog.mods.length) + " in catalog</span>" + clearAuthor +
+      '<span class="spacer"></span><button class="btn-primary" onclick="window.__openReleasePicker()">Add mod from release</button></div>' +
+      '<div class="toolbar">' +
+      '<input type="search" class="search" placeholder="Search name, id, author…" value="' + esc(modTable.q) + '" oninput="window.__modQ(this.value)" onkeydown="if(event.key===\'Escape\'){this.value=\'\';window.__modQ(\'\')}">' +
+      '<div class="field"><label>Category</label><select onchange="window.__modCat(this.value)">' + catOptions + "</select></div>" +
+      '<div class="field"><label>Sort</label><select onchange="window.__modSort(this.value)">' +
+      '<option value="updated"' + (modTable.sort === "updated" ? " selected" : "") + ">Recently updated</option>" +
+      '<option value="name"' + (modTable.sort === "name" ? " selected" : "") + ">Name</option>" +
+      '<option value="downloads"' + (modTable.sort === "downloads" ? " selected" : "") + ">Most downloaded</option>" +
+      '<option value="author"' + (modTable.sort === "author" ? " selected" : "") + ">Author</option>" +
+      "</select></div>" +
+      "</div>" + body + "</div>" +
+
+      panel("Add mod from a GitHub release",
+        "",
+        { sub: "Mods only reach the app once you add them here — nothing on GitHub releases loads automatically. Pick the source, fetch releases, select one, then review the details on the next screen.",
+          body: addArea +
+            '<div class="toolbar" style="margin:12px 0;">' +
+            '<div class="field hidden" id="repoOwnerField"><label>Owner</label><input type="text" id="fRepoOwner" placeholder="ArcDevsio" value=""></div>' +
+            '<div class="field hidden" id="repoNameField"><label>Repo</label><input type="text" id="fRepoName" placeholder="PartEditor" value=""></div>' +
+            '<div class="field hidden" id="arcdevsSelField"><label>ArcDevs.io repo</label><select id="arcdevsRepos"><option value="">Loading…</option></select></div>' +
+            '<span class="spacer"></span>' +
+            '<button class="btn-quiet" id="fetchReleasesBtn"><ion-icon name="arrow-down-circle"></ion-icon><span>Fetch releases</span></button>' +
+            "</div>" +
+            '<div id="releasesBox"><div class="empty">Choose a source above, then fetch releases.</div></div>' +
+            '<div class="note" style="margin-top:12px;">Two sources: the <b>Dockyard store</b> re-hosts the author&rsquo;s mod as one release on <code>ArcDevsio/Dockyard</code> (the app stays pinned to exactly the release you pick), or a <b>mod owner&rsquo;s repo</b> (the app follows their newest release live).</div>' });
+
+    return html;
+  }
+
+  function renderModders() {
+    var q = (window.__modderQ || "").toLowerCase();
+    var list = modderList().filter(function (m) {
+      return !q || m.name.toLowerCase().indexOf(q) !== -1 || m.id.toLowerCase().indexOf(q) !== -1;
+    }).sort(function (a, b) {
+      var ma = modderMeta(a.id), mb = modderMeta(b.id);
+      return mb.mods.length - ma.mods.length;
+    });
+
+    var body = list.length ? '<div class="table-wrap"><table class="tbl"><thead><tr>' +
+      "<th>Modder</th><th>Verified</th><th>Badges</th><th>Mods</th><th>Downloads</th><th>Activity</th><th>Featured</th><th>Actions</th>" +
+      "</tr></thead><tbody>" +
+      list.map(function (m) {
+        var meta = modderMeta(m.id);
+        var s = modderSettings(m.id);
+        var badged = !!(s && ((s.badges && s.badges.length) || s.verified));
+        return "<tr>" +
+          "<td><div class=\"cell-title\">" + avatar(m.avatarUrl, m.name) + "<div><div class=\"tname\">" + esc(m.name) + "</div><div class=\"tid\">" + esc(m.id) + "</div></div></div></td>" +
+          '<td>' + (s && s.verified ? '<span class="tag05 on"><ion-icon name="checkmark-circle"></ion-icon>Verified</span>' : '<span class="faint">·</span>') + "</td>" +
+          "<td>" + (badged ? badgePills(m.id) : '<span class="faint">·</span>') + "</td>" +
+          '<td class="tbl-mono">' + meta.mods.length + "</td>" +
+          '<td class="tbl-mono">' + fmtInt(meta.totalDownloads) + "</td>" +
+          '<td class="tbl-mono">' + fmtDate(meta.latest) + "</td>" +
+          "<td>" + (isFeaturedModder(m.id) ? '<span class="tag05 on"><ion-icon name="star"></ion-icon>Yes</span>' : '<span class="faint">·</span>') + "</td>" +
+          '<td><div class="cell-actions">' +
+          '<button class="btn-icon btn-quiet" title="Toggle verified" onclick="window.__modderVerify(\'' + esc(m.id) + '\')"><ion-icon name="' + (s && s.verified ? "checkmark-circle-outline" : "checkmark-circle") + '"></ion-icon></button>' +
+          '<button class="btn-icon btn-quiet" title="Manage badges" onclick="window.__modderBadges(\'' + esc(m.id) + '\')"><ion-icon name="ribbon"></ion-icon></button>' +
+          '<button class="btn-icon btn-quiet" title="View mods" onclick="window.__modderMods(\'' + esc(m.id) + '\')"><ion-icon name="cube-outline"></ion-icon></button>' +
+          '<button class="btn-icon btn-quiet" title="Remove modder and their mods" onclick="window.__modderRemove(\'' + esc(m.id) + '\')"><ion-icon name="trash"></ion-icon></button>' +
+          "</div></td></tr>";
+      }).join("") + "</tbody></table></div>"
+      : '<div class="empty">No modders yet — modders appear here once their mods land in the catalog.</div>';
+
+    return panel("Modders", "",
+      { sub: fmtInt(list.length) + " modders · " + fmtInt(badgedCount()) + " with badges or verification",
+        body: '<div class="toolbar"><input type="search" class="search" placeholder="Search modders…" value="' + esc(window.__modderQ || "") + '" oninput="window.__modderQd(this.value)"><span class="spacer"></span></div>' + body });
+  }
+
+  // ---------------- Featured ----------------
+
+  function renderFeatured() {
+    var modsPick = catalog.mods.filter(function (m) { return !isFeaturedMod(m.id); })
+      .map(function (m) { return '<option value="' + esc(m.id) + '">' + esc(m.name + "  (by " + m.author.name + ")") + "</option>"; }).join("");
+    var moddersPick = modderList().filter(function (m) { return !isFeaturedModder(m.id); })
+      .map(function (m) { return '<option value="' + esc(m.id) + '">' + esc(m.name + "  (" + m.modCount + " mods)") + "</option>"; }).join("");
+
+    var featureMods = renderOrder(false, state.featuredMods, "mods");
+    var featureModders = renderOrder(false, state.featuredModders, "modders");
+
+    return panel("Featured mods", "",
+      { sub: "Orders the horizontal “Featured” section on Home. Order here == display order.",
+        body:
+          '<div class="toolbar"><div class="field hidden" style="flex:1;"></div><select id="modPicker" onchange="">' + (modsPick || "") + "</select>" +
+          '<button class="btn-quiet" onclick="window.__featAddMod()">Add</button></div>' +
+          featureMods }) +
+      panel("Featured modders", "",
+      { sub: "Orders the “Featured Modders” row on Home.",
+        body:
+          '<div class="toolbar"><select id="modderPicker">' + (moddersPick || "") + "</select>" +
+          '<button class="btn-quiet" onclick="window.__featAddModder()">Add</button></div>' +
+          featureModders }) +
+      '<div class="note"><code>latestVersion</code>/featured config is stored in <code>config.json</code>. Click <b>Save changes</b> to publish these edits to GitHub.</div>';
+  }
+
+  function renderOrder(isBadge, ids, type) {
     if (!ids.length) {
-      var empty = document.createElement("div");
-      empty.className = "empty-list";
-      empty.textContent = "Nothing featured yet. Add from the dropdown above.";
-      node.appendChild(empty);
-      return;
+      return '<div class="list"><div class="empty">Nothing featured yet.</div></div>';
     }
-    ids.forEach(function (id, idx) {
+    return '<div class="list">' + ids.map(function (id, idx) {
       var meta = (type === "mods")
         ? catalog.mods.filter(function (m) { return m.id === id; })[0]
         : modderList().filter(function (m) { return m.id === id; })[0];
-      if (!meta) return;
-      var el = document.createElement("div");
-      el.className = "ordered-item";
+      if (!meta) return "";
+      return '<div class="item"><span class="idx">' + (idx + 1) + "</span>" +
+        avatar(meta.avatarUrl, meta.name || meta.id) +
+        '<div class="meta"><div class="name">' + esc(meta.name) + "</div><div class=\"id\">" + esc(id) + "</div></div>" +
+        '<div class="move">' +
+        '<button class="btn-icon btn-quiet" ' + (idx === 0 ? "disabled" : "") + ' title="Move to top" onclick="window.__move(\'' + type + '\',' + idx + ',-999);"><ion-icon name="chevron-up-sharp"></ion-icon></button>' +
+        '<button class="btn-icon btn-quiet" ' + (idx === 0 ? "disabled" : "") + ' title="Move up" onclick="window.__move(\'' + type + '\',' + idx + ',-1);"><ion-icon name="chevron-up"></ion-icon></button>' +
+        '<button class="btn-icon btn-quiet" ' + (idx === ids.length - 1 ? "disabled" : "") + ' title="Move down" onclick="window.__move(\'' + type + '\',' + idx + ',1);"><ion-icon name="chevron-down"></ion-icon></button>' +
+        '<button class="btn-icon btn-quiet" ' + (idx === ids.length - 1 ? "disabled" : "") + ' title="Remove" onclick="window.__remove(\'' + type + '\',' + idx + ');"><ion-icon name="close"></ion-icon></button>' +
+        "</div></div>";
+    }).join("") + "</div>";
+  }
 
-      var av = document.createElement("div");
-      av.className = "avatar";
-      if (meta.avatarUrl) {
-        var img = document.createElement("img");
-        img.src = meta.avatarUrl;
-        img.setAttribute("referrerpolicy", "no-referrer");
-        av.appendChild(img);
-      } else {
-        av.textContent = (meta.name || meta.id || "?").slice(0, 2).toUpperCase();
+  // ---------------- Badges ----------------
+
+  var selBadgeIcon = "";
+
+  function renderBadges() {
+    var pick = modderList().map(function (m) {
+      var s = modderSettings(m.id);
+      var info = [];
+      if (s && s.verified) info.push("verified");
+      if (modderBadges(m.id).length) info.push(modderBadges(m.id).length + " badges");
+      var suffix = info.length ? "  (" + info.join(", ") + ")" : "  — no badges";
+      return '<option value="' + esc(m.id) + '"' + (badgeSel === m.id ? " selected" : "") + ">" + esc(m.name + suffix) + "</option>";
+    }).join("");
+    if (!pick) {
+      return panel("Badges", "", { sub: "Per-modder verified status and custom badges.",
+        body: '<div class="empty">No modders yet — add mods to the catalog first.</div>' });
+    }
+
+    var id = badgeSel;
+    var s = modderSettings(id);
+    var isVerified = !!(s && s.verified);
+    var badges = modderBadges(id);
+
+    var iconGrid = BADGE_ICON_LIBRARY.map(function (ic) {
+      var selected = (selBadgeIcon || "") === ic.name;
+      return '<button type="button" class="iconpick' + (selected ? " selected" : "") + '" data-ic="' + ic.name + '" title="' + ic.label + '">' +
+        '<ion-icon name="' + ic.name + '"></ion-icon><span>' + ic.label + "</span></button>";
+    }).join("");
+
+    var verifiedRow = '<div class="badge-verified-row">' +
+      '<input type="checkbox" id="vChk" ' + (isVerified ? "checked" : "") + ' onchange="window.__verify(\'' + esc(id) + '\',this.checked)">' +
+      '<span class="vlabel">Verified modder</span>' +
+      '<span class="mono faint small">renders as a filled check next to the name in the app</span></div>';
+
+    var badgeList = badges.length ? '<div class="list" style="margin-top:10px;">' + badges.map(function (b, bi) {
+      return '<div class="item"><span class="pill"><span class="swatch" style="background:' + esc(b.color || "#8E8E93") + '"></span>' +
+        (b.icon ? '<ion-icon name="' + esc(b.icon) + '"></ion-icon>' : "") + esc(b.name) + "</span>" +
+        '<div class="meta"><div class="tid">' + esc((b.color || "#8E8E93").toUpperCase()) + (b.icon ? "  ·  " + b.icon : "") + (b.iconColor ? "  ·  " + b.iconColor.toUpperCase() : "") + "</div></div>" +
+        '<button class="btn-icon btn-quiet" title="Remove" onclick="window.__badgeRem(\'' + esc(id) + '\',' + bi + ')"><ion-icon name="trash"></ion-icon></button></div>';
+    }).join("") + "</div>"
+      : '<div class="empty" style="margin-top:10px;">No custom badges for this modder yet.</div>';
+
+    var addForm = '<div class="badge-form">' +
+      '<div><label>Badge name</label><input type="text" id="badgeName" maxlength="24" placeholder="e.g. Team" style="width:100%;"></div>' +
+      '<div><label>Color</label><input type="color" id="badgeColor" value="#8E8E93" style="width:100%;"></div>' +
+      '<div><label>Icon color</label><input type="color" id="badgeIconColor" value="#FFFFFF" style="width:100%;"></div>' +
+      '<div><button class="btn-quiet" onclick="window.__badgeAdd(\'' + esc(id) + '\')">Add badge</button></div></div>' +
+      '<div class="iconpick-grid" id="iconpickGrid">' + iconGrid + "</div>" +
+      '<div class="help" style="margin-top:10px;">Filled icon set — in sync with the app&rsquo;s badge library. Verified stays a separate filled check.</div>';
+
+    return panel("Badges", "",
+      { sub: "Verified + custom badges per modder. Staged changes are published with Save.",
+        body:
+          '<div class="badge-modder-bar"><label class="faint small" style="text-transform:uppercase;letter-spacing:.1em;">Modder</label><select id="badgeModderPicker" onchange="window.__badgeSel(this.value)">' + pick + "</select></div>" +
+          verifiedRow + badgeList + '<div class="badge-sep" style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line-soft);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-faint);">New custom badge</div>' +
+          addForm });
+  }
+
+  // ---------------- Activity ----------------
+
+  var _actFilter = "all";
+  function activityFilter() { return _actFilter; }
+
+  function renderActivity() {
+    var all = allEvents();
+    var f = activityFilter();
+    if (f !== "all") all = all.filter(function (e) { return e.type === f; });
+    var n = (window.__activityCount || 25);
+    all = all.slice(0, n);
+
+    var filterSeg = '<div class="seg">' +
+      [["all", "All"], ["mod", "Mods"], ["modder", "Modders"], ["badge", "Badges"], ["featured", "Featured"], ["config", "Config"]]
+      .map(function (p) { return '<button class="' + (f === p[0] ? "active" : "") + '" onclick="window.__actFilter(\'' + p[0] + '\')">' + p[1] + "</button>"; }).join("") +
+      "</div>";
+
+    if (!all.length) {
+      return panel("Activity", filterSeg, { sub: "Changes to the catalog, config, and repo commits. Nothing is fabricated — this mirrors what GitHub records.",
+        body: '<div class="empty">No activity yet. Changes you make in this session and new commits to <code>' + esc(GH_REPO) + "</code> will appear here.</div>" });
+    }
+    return panel("Activity", filterSeg, { sub: "Timeline of what changed, when, and by whom.",
+      body: timeline(all) + '<div class="panel-foot"><button class="btn-quiet small" onclick="window.__moreEvents()">Show more</button></div>' });
+  }
+
+  function timeline(events) {
+    return '<div class="timeline">' + events.map(function (e) {
+      var t = e.type;
+      if (e.type === "config" && e.entity === "repo") t = "repo";
+      return '<div class="ev' + (e.self ? " self" : "") + '"><span class="dot"></span>' +
+        '<div class="ev-top"><span class="ev-type">' + esc(t) + "</span>" +
+        '<span class="ev-entity">' + esc(e.entity || "—") + "</span>" +
+        (e.actor ? '<span class="ev-id">by ' + esc(e.actor) + "</span>" : "") +
+        '<span class="ev-when">' + (e.self ? "now" : fmtDT(e.ts)) + "</span></div>" +
+        (e.detail ? '<div class="ev-detail">' + esc(e.detail) + "</div>" : "") +
+        "</div>";
+    }).join("") + "</div>";
+  }
+
+  // ---------------- Analytics ----------------
+
+  function renderAnalytics() {
+    var total = totalDownloads();
+    var modders = modderList();
+    var stats = [
+      { num: fmtInt(total), lbl: "Catalog downloads" },
+      { num: fmtInt(catalog.mods.length), lbl: "Releases tracked" },
+      { num: fmtInt(modders.length), lbl: "Active modders" },
+      { num: fmtInt(state.storeReleases ? state.storeReleases.reduce(function (s, r) { return s + r.totalDownloads; }, 0) : null), lbl: "Store downloads" }
+    ];
+
+    var top = catalog.mods.slice().sort(function (a, b) { return (b.downloadCount || 0) - (a.downloadCount || 0); }).slice(0, 10);
+    var maxTop = Math.max.apply(null, top.map(function (m) { return m.downloadCount || 0; }).concat([1]));
+
+    var topBlock = '<div class="table-wrap" style="border:none;border-left:1px solid var(--line);"><table class="tbl" style="min-width:420px;"><thead><tr>' +
+      "<th style=\"width:34px;\">#</th><th>Mod</th><th>Downloads</th></tr></thead><tbody>" +
+      top.map(function (m, i) {
+        var w = Math.max(2, Math.round(((m.downloadCount || 0) / maxTop) * 100));
+        return "<tr><td class=\"tbl-mono\">" + (i + 1) + "</td>" +
+          "<td><div class=\"cell-title\">" + modIcon(m) + "<div><div class=\"tname\">" + esc(m.name) + "</div><div class=\"tid\">" + esc(m.id) + "</div></div></div></td>" +
+          '<td><div style="display:flex;align-items:center;gap:10px;"><div style="flex:1;min-width:80px;height:12px;background:var(--line-soft);"><div style="height:100%;width:' + w + '%;background:var(--fg);"></div></div>' +
+          '<span class="tbl-mono">' + fmtInt(m.downloadCount || 0) + "</span></div></td></tr>";
+      }).join("") + "</tbody></table></div>";
+
+    // Releases over time — real publishedAt data, bucketed monthly.
+    var buckets = [];
+    var now = new Date();
+    for (var i = 11; i >= 0; i--) {
+      var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      buckets.push({ key: d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"), label: d.toISOString().slice(0, 7), count: 0 });
+    }
+    catalog.mods.forEach(function (m) {
+      if (!m.latestRelease || !m.latestRelease.publishedAt) return;
+      var pub = new Date(m.latestRelease.publishedAt);
+      var key = pub.getFullYear() + "-" + String(pub.getMonth() + 1).padStart(2, "0");
+      for (var b = 0; b < buckets.length; b++) {
+        if (buckets[b].key === key) { buckets[b].count++; break; }
       }
-
-      var metaEl = document.createElement("div");
-      metaEl.className = "meta";
-      var name = document.createElement("div");
-      name.className = "name";
-      name.textContent = meta.name + (type === "modders" ? " — " + meta.modCount + " mods" : "");
-      var idEl = document.createElement("div");
-      idEl.className = "id";
-      idEl.textContent = id;
-      metaEl.appendChild(name); metaEl.appendChild(idEl);
-
-      var tools = document.createElement("div");
-      tools.className = "tools";
-      var up = mkTool("↑", idx > 0, function () { move(ids, idx, -1); reorderRender(); });
-      var down = mkTool("↓", idx < ids.length - 1, function () { move(ids, idx, 1); reorderRender(); });
-      var rm = mkTool("✕", true, function () { ids.splice(idx, 1); reorderRender(); }, true);
-      tools.appendChild(up); tools.appendChild(down); tools.appendChild(rm);
-
-      el.appendChild(av); el.appendChild(metaEl); el.appendChild(tools);
-      node.appendChild(el);
     });
+    var maxHist = Math.max.apply(null, buckets.map(function (b) { return b.count; }).concat([1]));
+    var histBlock = '<div class="hist">' + buckets.map(function (b) {
+      var h = Math.max(2, Math.round((b.count / maxHist) * 100));
+      return '<div class="col"><span class="cnt">' + b.count + '</span><div class="bar" style="height:' + h + '%;" title="' + esc(b.label) + ": " + b.count + '"></div><span class="lab">' + esc(b.label.slice(5)) + "</span></div>";
+    }).join("") + "</div>";
+
+    var modderAct = modders.slice().sort(function (a, b) { return modderMeta(b.id).mods.length - modderMeta(a.id).mods.length; }).slice(0, 8);
+    var modderBlock = '<div class="table-wrap"><table class="tbl" style="min-width:440px;"><thead><tr>' +
+      "<th>Modder</th><th>Mods</th><th>Downloads</th><th>Latest release</th></tr></thead><tbody>" +
+      modderAct.map(function (m) {
+        var meta = modderMeta(m.id);
+        return "<tr><td><div class=\"cell-title\">" + avatar(m.avatarUrl, m.name) + "<div class=\"tname\">" + esc(m.name) + "</div></div></td>" +
+          '<td class="tbl-mono">' + meta.mods.length + "</td>" +
+          '<td class="tbl-mono">' + fmtInt(meta.totalDownloads) + "</td>" +
+          '<td class="tbl-mono">' + rel(meta.latest) + "</td></tr>";
+      }).join("") + "</tbody></table></div>";
+
+    var storeBlock;
+    if (state.storeReleases) {
+      storeBlock = renderStoreReleaseTable(state.storeReleases);
+    } else if (state.storeReleases === null) {
+      storeBlock = '<div class="empty">Store release data wasn&rsquo;t reachable — check the connection and hit Fetch.</div>';
+    } else {
+      storeBlock = '<div class="empty">Loading store releases&hellip;</div>';
+    }
+
+    var timeBlock = '<div class="empty"><b>Downloads over time</b><br>GitHub&rsquo;s API exposes per-asset totals but not a per-day history, so there is no time-series data to plot yet.<div style="margin-top:8px;" class="faint">Wire an analytics endpoint that records per-day download counts and this view will render a line chart at 7 / 30 / 90 days / 1 year.</div></div>';
+
+    return metricStrip(stats) +
+      panel("Downloads over time", "", { sub: "7d · 30d · 90d · 1y", body: timeBlock }) +
+      panel("Most downloaded mods", "", {
+        sub: "Top 10 from the catalog",
+        body: '<div class="table-wrap" style="border:none;border-top:1px solid var(--line);">' + topBlock + "</div>" }) +
+      panel("Mod releases", "", {
+        sub: "Catalog entries by their latest release month (12 months)",
+        body: histBlock }) +
+      panel("Modder activity", "", {
+        sub: "Publishing footprint per modder",
+        body: modderBlock }) +
+      panel("Store release downloads", "", {
+        sub: "Public assets on " + esc(STORE_REPO.owner + "/" + STORE_REPO.name) + " (GitHub release download counts)",
+        body: storeBlock });
   }
 
-  function mkTool(label, enabled, fn, danger) {
-    var b = document.createElement("button");
-    b.textContent = label;
-    b.disabled = !enabled;
-    if (danger) b.classList.add("danger");
-    b.addEventListener("click", fn);
-    return b;
+  function renderStoreReleaseTable(releases) {
+    if (!releases.length) return '<div class="empty">No public releases found on the store repo.</div>';
+    return '<div class="table-wrap"><table class="tbl" style="min-width:560px;"><thead><tr>' +
+      "<th>Release</th><th>Published</th><th>Asset</th><th>Size</th><th>Downloads</th></tr></thead><tbody>" +
+      releases.map(function (r) {
+        return (r.assets.length ? r.assets : [{ name: "", size: null, downloads: 0 }]).map(function (a, i) {
+          return "<tr>" + (i === 0 ? '<td class="tbl-mono" rowspan="' + Math.max(1, r.assets.length) + '">' + esc(r.tag) + "</td>" : "") +
+            (i === 0 ? '<td class="tbl-mono" rowspan="' + Math.max(1, r.assets.length) + '">' + fmtDate(r.published) + "</td>" : "") +
+            '<td class="tbl-mono">' + esc(a.name || "—") + "</td>" +
+            '<td class="tbl-mono">' + (a.size ? fmtSize(a.size) : "—") + "</td>" +
+            '<td class="tbl-mono">' + fmtInt(a.downloads || 0) + "</td></tr>";
+        }).join("");
+      }).join("") + "</tbody></table></div>";
   }
 
-  function move(arr, idx, dir) {
-    var target = idx + dir;
-    if (target < 0 || target >= arr.length) return;
-    var tmp = arr[idx]; arr[idx] = arr[target]; arr[target] = tmp;
+  // ---------------- Settings ----------------
+
+  function maskToken(t) {
+    if (!t) return "not set";
+    return t.slice(0, 4) + "••••••••" + t.slice(-4);
   }
 
-  function reorderRender() { render(); }
+  function renderSettings() {
+    var scopeText = state.tokenScopes.length ? state.tokenScopes.join(", ") : "scopes not returned (fine — scopes are only advertised on classic tokens)";
+    return panel("App update", "", {
+      sub: "Bump latestVersion above the installed app version to prompt users to update.",
+      body: '<div class="form-grid">' +
+        '<div class="field"><label>Latest version</label><input type="text" id="fLatestVersion" value="' + esc(state.app.latestVersion) + '" class="mono" placeholder="1.1.0"></div>' +
+        '<div class="field"><label>Minimum version</label><input type="text" id="fMinimumVersion" value="' + esc(state.app.minimumVersion) + '" class="mono" placeholder="1.0.0"></div>' +
+        '<div class="field span2"><label>APK download URL</label><input type="url" id="fAndroidUrl" value="' + esc(state.app.androidDownloadUrl) + '" class="mono" placeholder="https://…" style="font-size:12px;"></div>' +
+        '<div class="field span2"><label>Changelog</label><textarea id="fChangelog" placeholder="What changed in this build?">' + esc(state.app.changelog) + "</textarea></div>" +
+        "</div>" }) +
 
-  $("addModBtn").addEventListener("click", function () {
-    var v = $("modPicker").value;
-    if (!v) return;
-    if (state.featuredMods.indexOf(v) === -1) state.featuredMods.push(v);
-    render();
-  });
+      panel("Appearance", "", {
+        sub: "Two-color theme — light and dark use the same palette flipped.",
+        body: '<div class="seg">' +
+          '<button class="' + (themeIsLight() ? "" : "active") + '" onclick="window.__theme(\'dark\')">Dark</button>' +
+          '<button class="' + (themeIsLight() ? "active" : "") + '" onclick="window.__theme(\'light\')">Light</button>' +
+          "</div>" }) +
 
-  $("addModderBtn").addEventListener("click", function () {
-    var v = $("modderPicker").value;
-    if (!v) return;
-    if (state.featuredModders.indexOf(v) === -1) state.featuredModders.push(v);
-    render();
-  });
+      panel("API configuration", "", {
+        sub: "Reads/writes go to the content repo through the GitHub Contents API using your stored token. Tokens are never printed anywhere in this UI.",
+        body: '<div class="table-wrap"><table class="tbl" style="min-width:420px;border:none;border-top:1px solid var(--line);"><tbody>' +
+          '<tr><td class="faint small" style="width:170px;">Repository</td><td class="tbl-mono">' + esc(GH_REPO) + "</td></tr>" +
+          '<tr><td class="faint small">Branch</td><td class="tbl-mono">' + esc(GH_BRANCH) + "</td></tr>" +
+          '<tr><td class="faint small">Content path</td><td class="tbl-mono">' + esc(GH_PATH) + "/</td></tr>" +
+          '<tr><td class="faint small">Token</td><td><span class="tbl-mono">' + esc(maskToken(token)) + '</span><button class="btn-quiet small" style="margin-left:8px;" onclick="window.__logout()">log out</button></td></tr>' +
+          '<tr><td class="faint small">Token scopes</td><td class="tbl-mono">' + esc(scopeText) + "</td></tr>" +
+          '<tr><td class="faint small">Authenticated as</td><td class="tbl-mono">' + esc(state.tokenUser || "—") + "</td></tr>" +
+          "</tbody></table></div>" }) +
 
-  $("delModBtn").addEventListener("click", function () {
+      panel("Featured configuration", "", {
+        sub: "Ordering and membership live on the Featured page.",
+        body: '<div class="table-wrap"><table class="tbl" style="min-width:420px;border:none;border-top:1px solid var(--line);"><tbody>' +
+          '<tr><td class="faint small">Featured mods</td><td><div class="cell-title">' + (state.featuredMods.length ? state.featuredMods.map(function (id) { return '<span class="tag05">' + esc(id) + "</span>"; }).join(" ") : '<span class="faint">none</span>') + '</div><button class="btn-quiet small" style="margin-top:6px;" onclick="window.__go(\'featured\')">Open Featured</button></td></tr>' +
+          '<tr><td class="faint small">Featured modders</td><td><div class="cell-title">' + (state.featuredModders.length ? state.featuredModders.map(function (id) { return '<span class="tag05">' + esc(id) + "</span>"; }).join(" ") : '<span class="faint">none</span>') + '</div></td></tr>' +
+          "</tbody></table></div>" }) +
+
+      panel("Badge system", "", {
+        sub: "The curated filled icon library in sync with the app. Assign per-modder on the Badges page.",
+        body: '<div class="iconpick-grid">' + BADGE_ICON_LIBRARY.map(function (ic) {
+          return '<div class="iconpick" style="cursor:default;"><ion-icon name="' + ic.name + '"></ion-icon><span>' + ic.label + "</span></div>";
+        }).join("") + "</div>" }) +
+
+      panel("Mod management", "", {
+        sub: "Add, edit, feature, and remove catalog entries.",
+        body: '<div class="faint small" style="line-height:1.7;">' + fmtInt(catalog.mods.length) + " mods in the catalog · " +
+          '<button class="btn-quiet small" onclick="window.__go(\'mods\')">Open Mods</button></div>' }) +
+
+      panel("Modder verification", "", {
+        sub: "Verified status and badges per author.",
+        body: '<div class="faint small" style="line-height:1.7;">' + fmtInt(modderList().length) + " modders · " + fmtInt(badgedCount()) + " with verification or badges · " +
+          '<button class="btn-quiet small" onclick="window.__go(\'modders\')">Open Modders</button></div>' }) +
+
+      panel("Analytics data map", "", {
+        sub: "Which numbers come from where.",
+        body: '<div class="table-wrap"><table class="tbl" style="min-width:420px;border:none;border-top:1px solid var(--line);"><tbody>' +
+          '<tr><td class="faint small">Catalog downloads / most downloaded</td><td class="small">downloadCount field on catalog entries + GitHub release asset download counts</td></tr>' +
+          '<tr><td class="faint small">Mod releases / modder activity</td><td class="small">latestRelease.publishedAt across the catalog</td></tr>' +
+          '<tr><td class="faint small">Downloads over time</td><td class="small">Not available from the current API — the view is ready but intentionally empty until a time-series endpoint exists</td></tr>' +
+          "</tbody></table></div>" }) +
+      '<div class="note">Secrets policy: the admin UI never renders the full token. Every write is an authenticated push to <code>' + esc(GH_REPO) + "</code>; Pages rebuilds in roughly a minute.</div>";
+  }
+
+  function themeIsLight() {
+    return document.documentElement.getAttribute("data-theme") === "light";
+  }
+
+  /* ---------------- page dispatcher ---------------- */
+
+  function renderPage(id) {
+    $("crumb").innerHTML = crumb();
+    $("content").innerHTML = renderBody(id);
+    document.querySelectorAll(".section").forEach(function (s) { s.classList.remove("active"); });
+    $("content").classList.add("section");
+    $("content").classList.add("active");
+    bindPageEvents(id);
+  }
+
+  function renderBody(id) {
+    switch (id) {
+      case "overview": return renderOverview();
+      case "mods": return renderMods();
+      case "modders": return renderModders();
+      case "featured": return renderFeatured();
+      case "badges": return renderBadges();
+      case "activity": return renderActivity();
+      case "analytics": return renderAnalytics();
+      case "settings": return renderSettings();
+    }
+    return "";
+  }
+
+  var badgeSel = "";
+
+  function bindPageEvents(id) {
+    if (id === "mods") {
+      var st = $("srcStoreBtn");
+      // re-apply store/repo visibility based on state.source
+      state.source = state.source || "store";
+      setSourceUI();
+      var sel = $("arcdevsRepos");
+      if (sel && sel.options.length <= 1) loadArcDevsRepos();
+    }
+  }
+
+  function setSourceUI() {
+    var storeActive = state.source === "store";
+    ["srcStoreBtn", "srcRepoBtn"].forEach(function (id) {});
+    var s1 = $("srcStoreBtn"); if (s1) s1.classList.toggle("active", storeActive);
+    var s2 = $("srcRepoBtn"); if (s2) s2.classList.toggle("active", !storeActive);
+    var ow = $("repoOwnerField"); if (ow) ow.classList.toggle("hidden", storeActive);
+    var rn = $("repoNameField"); if (rn) rn.classList.toggle("hidden", storeActive);
+    var as = $("arcdevsSelField"); if (as) as.classList.toggle("hidden", !storeActive);
+  }
+
+  /* ---------------- mod actions ---------------- */
+
+  window.__modQ = function (v) { modTable.q = v; modTable.page = 1; renderPage("mods"); };
+  window.__modCat = function (v) { modTable.cat = v; modTable.page = 1; renderPage("mods"); };
+  window.__modSort = function (v) { modTable.sort = v; modTable.page = 1; renderPage("mods"); };
+  window.__modPage = function (d) { modTable.page += d; renderPage("mods"); };
+  window.__perPage = function (v) { modTable.perPage = parseInt(v, 10) || 12; modTable.page = 1; renderPage("mods"); };
+  window.__modClearAuthor = function () { modTable.viewAuthor = ""; renderPage("mods"); };
+
+  window.__modFeature = function (id) {
+    var i = state.featuredMods.indexOf(id);
+    if (i === -1) { state.featuredMods.push(id); logEvent("featured", id, "Featured mod"); }
+    else { state.featuredMods.splice(i, 1); logEvent("featured", id, "Unfeatured mod"); }
+    setDirty();
+    renderPage("mods");
+    toast(i === -1 ? "Mod featured — Save to publish." : "Mod unfeatured — Save to publish.");
+  };
+
+  window.__modRemove = function (id) {
     if (state.saving) return;
-    var id = $("delModPicker").value;
-    if (!id) { toast("Pick a mod to delete.", true); return; }
     var mod = catalog.mods.filter(function (m) { return m.id === id; })[0];
     if (!mod) return;
     if (!window.confirm('Delete "' + mod.name + '" from the catalog?\n\nIt also stops being featured.')) return;
-
     catalog.mods = catalog.mods.filter(function (m) { return m.id !== id; });
     state.featuredMods = state.featuredMods.filter(function (f) { return f !== id; });
+    logEvent("mod", id, "Removed \"" + mod.name + "\"");
     persistCatalogAfterDelete();
-  });
+  };
 
-  $("delModderBtn").addEventListener("click", function () {
+  window.__modEdit = function (id) {
+    var mod = catalog.mods.filter(function (m) { return m.id === id; })[0];
+    if (!mod) return;
+    openEditModal(mod);
+  };
+
+  window.__modderVerify = function (id) {
+    var s = state.authorBadges[id];
+    var next = !(s && s.verified);
+    if (!state.authorBadges[id]) state.authorBadges[id] = {};
+    if (next) state.authorBadges[id].verified = true;
+    else delete state.authorBadges[id].verified;
+    if (state.authorBadges[id] && !state.authorBadges[id].verified && !(state.authorBadges[id].badges && state.authorBadges[id].badges.length)) {
+      delete state.authorBadges[id];
+    }
+    logEvent("badge", id, next ? "Verified" : "Unverified");
+    setDirty();
+    renderPage("modders");
+    toast(next ? "Modder verified — Save to publish." : "Verified removed — Save to publish.");
+  };
+
+  window.__modderBadges = function (id) {
+    badgeSel = id;
+    goPage("badges");
+  };
+  window.__modderMods = function (id) {
+    modTable.viewAuthor = id;
+    modTable.q = "";
+    modTable.page = 1;
+    goPage("mods");
+  };
+  window.__modderRemove = function (id) {
     if (state.saving) return;
-    var id = $("delModderPicker").value;
-    if (!id) { toast("Pick a modder to delete.", true); return; }
     var meta = modderList().filter(function (m) { return m.id === id; })[0];
     if (!meta) return;
     if (!window.confirm('Delete "' + meta.name + '" and ALL of their mods (' + meta.modCount + ')?\n\nTheir mods also stop being featured.')) return;
-
     var removedIds = {};
     catalog.mods = catalog.mods.filter(function (m) {
       if (m.author.id === id) { removedIds[m.id] = true; return false; }
@@ -1671,172 +1857,142 @@
     state.featuredMods = state.featuredMods.filter(function (f) { return !removedIds[f]; });
     state.featuredModders = state.featuredModders.filter(function (f) { return f !== id; });
     if (state.authorBadges && state.authorBadges[id]) delete state.authorBadges[id];
+    logEvent("modder", id, "Removed \"" + meta.name + "\" with " + meta.modCount + " mod(s)");
     persistCatalogAfterDelete();
-  });
+  };
 
-  /* ---- Modder badges ---- */
+  window.__modderQ = "";
+  window.__modderQd = function (v) { window.__modderQ = v; renderPage("modders"); };
 
-  var selectedBadgeIcon = "";
-
-  function badgeModderId() {
-    return $("badgeModderPicker").value;
-  }
-
-  function modderSettings(id) {
-    if (!id || !state.authorBadges || !state.authorBadges[id]) return null;
-    return state.authorBadges[id];
-  }
-
-  function modderBadges(id) {
-    var s = modderSettings(id);
-    return (s && s.badges) || [];
-  }
-
-  function renderBadgeModders() {
-    var sel = $("badgeModderPicker");
-    var current = sel.value;
-    sel.innerHTML = '<option value="">Choose…</option>';
-    modderList().forEach(function (m) {
-      var opt = document.createElement("option");
-      opt.value = m.id;
-      opt.textContent = m.name + "  (" + m.modCount + " mod" + (m.modCount === 1 ? "" : "s") + ")";
-      sel.appendChild(opt);
-    });
-    if (current && !modderList().some(function (m) { return m.id === current; })) current = "";
-    sel.value = current || "";
-    renderBadgeList();
-  }
-
-  function renderBadgeList() {
-    var node = $("badgeList");
-    node.innerHTML = "";
-    var id = badgeModderId();
-    if (!id) {
-      node.innerHTML = '<div class="empty-list">Pick a modder to manage their badges.</div>';
+  window.__go = function (id) { goPage(id); };
+  window.__move = function (type, idx, dir) {
+    var arr = type === "mods" ? state.featuredMods : state.featuredModders;
+    if (dir === -999) {
+      var top = arr.splice(idx, 1)[0];
+      if (top !== undefined) {
+        arr.unshift(top);
+        logEvent("featured", top, type === "mods" ? "Moved featured mod to top" : "Moved featured modder to top");
+        setDirty();
+        renderPage("featured");
+      }
       return;
     }
+    var target = idx + dir;
+    if (target < 0 || target >= arr.length) return;
+    var moving = arr[idx];
+    var tmp = arr[idx]; arr[idx] = arr[target]; arr[target] = tmp;
+    logEvent("featured", moving, type === "mods" ? "Reordered featured mods" : "Reordered featured modders");
+    setDirty();
+    renderPage("featured");
+  };
+  window.__remove = function (type, idx) {
+    var arr = type === "mods" ? state.featuredMods : state.featuredModders;
+    arr.splice(idx, 1);
+    logEvent("featured", "", type === "mods" ? "Removed featured mod" : "Removed featured modder");
+    setDirty();
+    renderPage("featured");
+  };
 
-    var s = modderSettings(id);
+  window.__featAddMod = function () {
+    var v = $("modPicker").value;
+    if (!v) return;
+    if (state.featuredMods.indexOf(v) === -1) state.featuredMods.push(v);
+    logEvent("featured", v, "Added featured mod");
+    setDirty();
+    renderPage("featured");
+  };
+  window.__featAddModder = function () {
+    var v = $("modderPicker").value;
+    if (!v) return;
+    if (state.featuredModders.indexOf(v) === -1) state.featuredModders.push(v);
+    logEvent("featured", v, "Added featured modder");
+    setDirty();
+    renderPage("featured");
+  };
 
-    var verifiedRow = document.createElement("div");
-    verifiedRow.className = "badge-verified-check";
-    var vbox = document.createElement("input");
-    vbox.type = "checkbox";
-    vbox.checked = !!(s && s.verified);
-    vbox.addEventListener("change", function () {
-      if (!state.authorBadges[id]) state.authorBadges[id] = {};
-      if (vbox.checked) state.authorBadges[id].verified = true;
-      else if (state.authorBadges[id]) delete state.authorBadges[id].verified;
-      if (state.authorBadges[id] &&
-          !state.authorBadges[id].verified &&
-          !(state.authorBadges[id].badges && state.authorBadges[id].badges.length)) {
-        delete state.authorBadges[id];
-      }
-      renderBadgeList();
-      toast(vbox.checked ? "Verified check added — hit Save to publish." : "Verified check removed — hit Save to publish.");
-    });
-    var vtxt = document.createElement("span");
-    vtxt.textContent = "Verified modder";
-    var vprev = document.createElement("span");
-    vprev.className = "badge-verified-preview";
-    // Mirrors the app's AuthorBadges verified glyph (keep path in sync
-    // with src/constants/verifiedBadge.ts).
-    vprev.innerHTML = '<svg viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z" fill="#1d9bf0"/></svg>';
-    verifiedRow.appendChild(vbox); verifiedRow.appendChild(vprev); verifiedRow.appendChild(vtxt);
-    node.appendChild(verifiedRow);
+  /* ---------------- badges ---------------- */
 
+  window.__badgeSel = function (id) { badgeSel = id; selBadgeIcon = ""; renderPage("badges"); };
+  window.__verify = function (id, checked) {
+    if (!state.authorBadges[id]) state.authorBadges[id] = {};
+    if (checked) state.authorBadges[id].verified = true;
+    else delete state.authorBadges[id].verified;
+    if (state.authorBadges[id] && !state.authorBadges[id].verified && !(state.authorBadges[id].badges && state.authorBadges[id].badges.length)) {
+      delete state.authorBadges[id];
+    }
+    logEvent("badge", id, checked ? "Verified" : "Unverified");
+    setDirty();
+    renderPage("badges");
+    toast(checked ? "Verified — Save to publish." : "Unverified — Save to publish.");
+  };
+  window.__badgeRem = function (id, idx) {
     var badges = modderBadges(id);
-    if (badges.length === 0) {
-      var empty = document.createElement("div");
-      empty.className = "empty-list";
-      empty.textContent = "No custom badges for this modder yet.";
-      node.appendChild(empty);
-      return;
+    if (!badges[idx]) return;
+    var b = badges[idx];
+    badges.splice(idx, 1);
+    if (badges.length === 0 && state.authorBadges[id] && !state.authorBadges[id].verified) {
+      delete state.authorBadges[id];
     }
-
-    badges.forEach(function (b, idx) {
-      var el = document.createElement("div");
-      el.className = "badge-row";
-
-      var pill = document.createElement("span");
-      pill.className = "badge-pill";
-      pill.style.background = b.color || "#8E8E93";
-      if (b.icon && b.icon.match(/^[a-z0-9-]+$/)) {
-        var ic = document.createElement("ion-icon");
-        ic.name = b.icon;
-        ic.setAttribute("size", "12");
-        ic.style.color = b.iconColor || "#FFFFFF";
-        pill.appendChild(ic);
-      } else if (b.icon) {
-        pill.appendChild(document.createTextNode(b.icon + " "));
-      }
-      pill.appendChild(document.createTextNode(b.name));
-
-      var meta = document.createElement("div");
-      meta.className = "meta";
-      var nm = document.createElement("div");
-      nm.className = "name";
-      nm.textContent = b.name;
-      var idEl = document.createElement("div");
-      idEl.className = "id";
-      idEl.textContent = (b.color || "#8E8E93").toUpperCase() + (b.icon ? "  ·  " + b.icon : "") + (b.iconColor ? "  ·  icon " + b.iconColor.toUpperCase() : "");
-      meta.appendChild(nm); meta.appendChild(idEl);
-
-      var tools = document.createElement("div");
-      tools.className = "tools";
-      var rm = mkTool("✕", true, function () {
-        badges.splice(idx, 1);
-        if (badges.length === 0 && state.authorBadges[id] && !state.authorBadges[id].verified) {
-          delete state.authorBadges[id];
-        }
-        renderBadgeList();
-      }, true);
-      tools.appendChild(rm);
-
-      el.appendChild(pill); el.appendChild(meta); el.appendChild(tools);
-      node.appendChild(el);
-    });
-  }
-
-  $("badgeModderPicker").addEventListener("change", function () {
-    selectedBadgeIcon = "";
-    document.querySelectorAll(".badge-icon").forEach(function (b) {
-      b.classList.toggle("selected", b.getAttribute("data-icon") === "");
-    });
-    renderBadgeList();
-  });
-
-  document.querySelectorAll(".badge-icon").forEach(function (b) {
-    b.addEventListener("click", function () {
-      selectedBadgeIcon = b.getAttribute("data-icon") || "";
-      document.querySelectorAll(".badge-icon").forEach(function (x) {
-        x.classList.toggle("selected", x === b);
-      });
-    });
-  });
-
-  $("addBadgeBtn").addEventListener("click", function () {
-    var id = badgeModderId();
-    if (!id) { toast("Pick a modder first.", true); return; }
+    logEvent("badge", id, "Removed badge \"" + b.name + "\"");
+    setDirty();
+    renderPage("badges");
+  };
+  window.__badgeAdd = function (id) {
     var name = $("badgeName").value.trim();
     if (!name) { toast("Enter a badge name.", true); return; }
-    var color = $("badgeColor").value || "#8E8E93";
-    var iconColor = $("badgeIconColor").value || "#FFFFFF";
-    var icon = selectedBadgeIcon || undefined;
-
+    var color = ($("badgeColor") && $("badgeColor").value) || "#8E8E93";
+    var iconColor = ($("badgeIconColor") && $("badgeIconColor").value) || "#FFFFFF";
+    var icon = selBadgeIcon || undefined;
     if (!state.authorBadges[id]) state.authorBadges[id] = {};
     if (!state.authorBadges[id].badges) state.authorBadges[id].badges = [];
     state.authorBadges[id].badges.push({ name: name, color: color, icon: icon, iconColor: iconColor });
+    logEvent("badge", id, "Added badge \"" + name + "\"");
+    setDirty();
+    if ($("badgeName")) $("badgeName").value = "";
+    renderPage("badges");
+    toast("Badge added — Save changes to publish.");
+  };
 
-    $("badgeName").value = "";
-    renderBadgeList();
-    toast("Badge added — hit Save changes to publish.");
+  // icon picker (delegate clicks)
+  document.addEventListener("click", function (ev) {
+    var el = ev.target.closest ? ev.target.closest("[data-ic]") : null;
+    if (el) {
+      selBadgeIcon = el.getAttribute("data-ic");
+      document.querySelectorAll(".iconpick[data-ic]").forEach(function (b) {
+        b.classList.toggle("selected", b.getAttribute("data-ic") === selBadgeIcon);
+      });
+      ev.preventDefault();
+    }
   });
 
-  /* ---- GitHub repo + release picker ---- */
+  /* ---------------- activity filter ---------------- */
+
+  window.__actFilter = function (v) { _actFilter = v; renderPage("activity"); };
+  window.__moreEvents = function () { window.__activityCount = (window.__activityCount || 25) + 50; renderPage("activity"); };
+
+  /* ---------------- source / releases ---------------- */
+
+  window.__src = function (mode) {
+    state.source = mode;
+    state.releases = [];
+    state.selectedRelease = null;
+    setSourceUI();
+    var box = $("releasesBox");
+    if (box) box.innerHTML = '<div class="empty">Choose a source above, then fetch releases.</div>';
+  };
+
+  window.__openReleasePicker = function () {
+    // Scroll the add panel into view is handled by focus in renderMods; nothing extra needed.
+    var el = document.querySelector('[onclick="window.__src(\'store\')"]');
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      el.closest(".panel").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
 
   async function loadArcDevsRepos() {
     var sel = $("arcdevsRepos");
+    if (!sel) return;
     sel.innerHTML = '<option value="">Pick an ArcDevs.io repo…</option>';
     try {
       var repos = await gh("https://api.github.com/users/ArcDevsio/repos?per_page=100&sort=updated");
@@ -1860,29 +2016,16 @@
     }
   }
 
-  $("arcdevsRepos").addEventListener("change", function () {
-    var full = this.value;
-    if (!full) return;
-    var parts = full.split("/");
-    $("fRepoOwner").value = parts[0];
-    $("fRepoName").value = parts[1];
-    fetchReleases();
+  document.addEventListener("change", function (ev) {
+    if (ev.target && ev.target.id === "arcdevsRepos") {
+      var full = ev.target.value;
+      if (!full) return;
+      var parts = full.split("/");
+      $("fRepoOwner").value = parts[0];
+      $("fRepoName").value = parts[1];
+      fetchReleases();
+    }
   });
-
-  function setSource(mode) {
-    state.source = mode;
-    $("srcStoreBtn").classList.toggle("active", mode === "store");
-    $("srcRepoBtn").classList.toggle("active", mode === "repo");
-    $("storeBar").classList.toggle("hidden", mode !== "store");
-    $("repoBar").classList.toggle("hidden", mode !== "repo");
-    state.releases = [];
-    state.selectedRelease = null;
-    $("releasesList").innerHTML = "";
-  }
-
-  $("srcStoreBtn").addEventListener("click", function () { setSource("store"); });
-  $("srcRepoBtn").addEventListener("click", function () { setSource("repo"); });
-  setSource("store");
 
   $("fetchReleasesBtn").addEventListener("click", fetchReleases);
 
@@ -1901,14 +2044,14 @@
     }
     var btn = $("fetchReleasesBtn");
     btn.disabled = true;
-    btn.textContent = "Fetching…";
+    btn.innerHTML = "<ion-icon name=\"arrow-down-circle\"></ion-icon><span>Fetching…</span>";
     state.releases = [];
     state.selectedRelease = null;
-    $("releasesList").innerHTML = "";
+    var box = $("releasesBox");
+    if (box) box.innerHTML = '<div class="empty">Loading releases&hellip;</div>';
     try {
       var repo = await gh("https://api.github.com/repos/" + encodeURIComponent(owner) + "/" + encodeURIComponent(name));
       var releases = await gh("https://api.github.com/repos/" + encodeURIComponent(owner) + "/" + encodeURIComponent(name) + "/releases?per_page=30");
-
       state.repo = {
         owner: repo.owner.login,
         name: repo.name,
@@ -1917,88 +2060,69 @@
         arcdevs: isArcDevsOwner(repo.owner.login)
       };
       state.releases = releases.filter(function (r) { return !r.draft; });
-
       if (!state.releases.length) {
-        $("releasesList").innerHTML = '<div class="empty-list">No public releases yet — publish one on GitHub first.</div>';
+        if (box) box.innerHTML = '<div class="empty">No public releases yet — publish one on GitHub first.</div>';
         toast("No releases found for " + owner + "/" + name, true);
         return;
       }
       renderReleases();
       toast(state.releases.length + " release(s) found.");
     } catch (e) {
-      $("releasesList").innerHTML = '<div class="empty-list">Failed to load: ' + e.message + '</div>';
+      if (box) box.innerHTML = '<div class="empty">Failed to load: ' + esc(e.message) + "</div>";
       toast("GitHub error: " + e.message, true);
     } finally {
       btn.disabled = false;
-      btn.textContent = "Fetch releases";
+      btn.innerHTML = '<ion-icon name="arrow-down-circle"></ion-icon><span>Fetch releases</span>';
     }
   }
 
   function renderReleases() {
-    var node = $("releasesList");
-    node.innerHTML = "";
-    node.appendChild(retainCount());
+    var box = $("releasesBox");
+    if (!box) return;
+    var html = '<div class="faint small" style="margin-bottom:6px;">' + state.releases.length + " releases</div>";
+    html += '<div class="table-wrap"><table class="tbl" style="min-width:480px;"><thead><tr>' +
+      "<th>Tag</th><th>Name</th><th>Published</th><th>Asset</th><th></th></tr></thead><tbody>";
     state.releases.forEach(function (r) {
-      var el = document.createElement("div");
-      el.className = "release-item" + (state.selectedRelease === r ? " selected" : "");
-
-      var radio = document.createElement("input");
-      radio.type = "radio";
-      radio.name = "releasePick";
-      radio.checked = state.selectedRelease === r;
-
-      var tagBadge = document.createElement("span");
-      tagBadge.className = "tag badge";
-      tagBadge.textContent = r.tag_name;
-
-      var meta = document.createElement("div");
-      meta.className = "meta";
-      var nm = document.createElement("div");
-      nm.className = "name";
-      nm.textContent = r.name || humanize(state.repo.name);
-      var dt = document.createElement("div");
-      dt.className = "date";
-      dt.textContent = "Published " + (r.published_at ? new Date(r.published_at).toLocaleDateString() : "recently");
-      var asst = document.createElement("div");
-      asst.className = "assets";
-      asst.textContent = r.assets.length
-        ? "Asset: " + r.assets[0].name + " (" + fmtSize(r.assets[0].size) + ")" + (r.assets.length > 1 ? " +" + (r.assets.length - 1) + " more" : "")
-        : "No assets — add a file to this release";
-      meta.appendChild(nm); meta.appendChild(dt); meta.appendChild(asst);
-
-      el.appendChild(radio); el.appendChild(tagBadge); el.appendChild(meta);
-      el.addEventListener("click", function () {
-        if (!r.assets.length) {
-          toast("This release has no asset to download. Attach a .dll or .pack on GitHub.", true);
-          return;
-        }
-        state.selectedRelease = r;
-        renderReleases();
-      });
-
-      node.appendChild(el);
+      var a = r.assets[0] || {};
+      html += '<tr class="rel-row' + (state.selectedRelease === r ? " sel" : "") + '" data-rel="' + esc(r.tag_name) + '" style="cursor:pointer;">' +
+        '<td class="tbl-mono">' + esc(r.tag_name) + "</td>" +
+        "<td>" + esc(r.name || humanize(state.repo.name)) + "</td>" +
+        '<td class="tbl-mono">' + fmtDate(r.published_at) + "</td>" +
+        '<td class="tbl-mono small">' + (r.assets.length ? esc(a.name) + " (" + fmtSize(a.size) + ")" + (r.assets.length > 1 ? " +" + (r.assets.length - 1) + " more" : "") : "no assets") + "</td>" +
+        '<td><button class="btn-icon btn-quiet" onclick="event.stopPropagation();window.__pickRel(\'' + esc(r.tag_name) + '\')">' +
+        (state.selectedRelease === r ? '<ion-icon name="checkmark-circle"></ion-icon>' : '<ion-icon name="add-circle-outline"></ion-icon>') +
+        "</button></td></tr>";
     });
-
+    html += "</tbody></table></div>";
     if (state.selectedRelease) {
-      var addBtn = document.createElement("button");
-      addBtn.textContent = "Add " + (state.selectedRelease.tag_name || "this release") + " to the catalog…";
-      addBtn.style.marginTop = "6px";
-      addBtn.addEventListener("click", openAddModal);
-      node.appendChild(addBtn);
+      html += '<div style="margin-top:10px;display:flex;justify-content:flex-end;">' +
+        '<button class="btn-primary" onclick="window.__openAdd()">Add ' + esc((state.selectedRelease.tag_name || "this release")) + ' to the catalog…</button></div>';
     }
+    box.innerHTML = html;
   }
 
-  function retainCount() {
-    var el = document.createElement("div");
-    el.className = "muted";
-    el.textContent = state.releases.length + " release(s)";
-    el.style.marginBottom = "8px";
-    return el;
-  }
+  window.__pickRel = function (tag) {
+    var r = null;
+    state.releases.forEach(function (x) { if (x.tag_name === tag) r = x; });
+    if (!r) return;
+    if (!r.assets.length) {
+      toast("This release has no asset to download. Attach a .dll or .pack on GitHub.", true);
+      return;
+    }
+    state.selectedRelease = r;
+    renderReleases();
+  };
 
-  /* ---- Add-mod modal ---- */
+  window.__openAdd = function () {
+    if (!state.selectedRelease || !state.repo) return;
+    openAddModal();
+  };
 
-  function buildCategoryChecks() {
+  /* ---------------- add / edit modal ---------------- */
+
+  var editTarget = null;
+
+  function buildCategoryChecks(checked) {
     var node = $("fCategories");
     node.innerHTML = "";
     CATEGORIES.forEach(function (c) {
@@ -2006,10 +2130,10 @@
       var cb = document.createElement("input");
       cb.type = "checkbox";
       cb.value = c.v;
+      if (checked && checked.indexOf(c.v) !== -1) cb.checked = true;
       label.appendChild(cb);
       label.appendChild(document.createTextNode(c.l));
       node.appendChild(label);
-      return cb;
     });
   }
 
@@ -2032,64 +2156,104 @@
     }
   }
 
-  async function openAddModal() {
+  $("fAuthorName").addEventListener("input", updateAvatarPreview);
+  $("fAuthorAvatar").addEventListener("input", updateAvatarPreview);
+
+  $("closeAddModal").addEventListener("click", function () { $("addModal").classList.add("hidden"); });
+  $("modalCancelBtn").addEventListener("click", function () { $("addModal").classList.add("hidden"); });
+
+  function openModal(title) {
+    $("addModal").classList.remove("hidden");
+    $("modalTitle").textContent = title;
+  }
+
+  function openAddModal() {
     var rel = state.selectedRelease;
     if (!rel || !state.repo) return;
+    editTarget = null;
+    openModal("Add mod to catalog");
 
     $("addSummary").innerHTML =
-      '<div class="repo">' + state.repo.owner + "/" + state.repo.name +
-      ' <span class="badge' + (state.repo.arcdevs ? " arcdevs" : "") + '">' +
+      '<div class="repo">' + esc(state.repo.owner + "/" + state.repo.name) +
+      ' <span class="tag05' + (state.repo.arcdevs ? " on" : "") + '">' +
       (state.repo.arcdevs ? "ArcDevs.io — original author is manual" : "GitHub author auto-fetched") +
-      '</span></div>' +
-      '<div class="rel">' + (rel.name || rel.tag_name) + ' <span class="badge">' + rel.tag_name + "</span>" +
-      (isStoreRepo(state.repo.owner, state.repo.name) ? ' <span class="badge arcdevs">pinned</span>' : "") + "</div>" +
-      '<div class="asst">Downloads the FIRST asset only: <b>' + rel.assets[0].name + "</b> (" + fmtSize(rel.assets[0].size) + ") into Custom_Assets/" +
+      "</span></div>" +
+      '<div class="rel">' + esc(rel.name || rel.tag_name) + ' <span class="tag05">' + esc(rel.tag_name) + "</span>" +
+      (isStoreRepo(state.repo.owner, state.repo.name) ? ' <span class="tag05 on">pinned</span>' : "") + "</div>" +
+      '<div class="asst">Downloads the FIRST asset only: <b>' + esc(rel.assets[0].name) + "</b> (" + fmtSize(rel.assets[0].size) + ") into Custom_Assets/" +
       (rel.assets[0].name.toLowerCase().endsWith(".pack") ? "Texture Packs" : "Parts") + "." +
       (isStoreRepo(state.repo.owner, state.repo.name) ? " The app stays on this exact release until you renew it here." : " Newer author releases are followed automatically.") +
       "</div>";
+    $("addSummary").classList.remove("hidden");
 
-    var author, ownerLogin = state.repo.owner;
-    if (!state.repo.arcdevs) {
-      try { author = await gh("https://api.github.com/users/" + encodeURIComponent(ownerLogin)); } catch (e) { author = null; }
-    }
+    var author = null, ownerLogin = state.repo.owner;
+    (async function () {
+      if (!state.repo.arcdevs) {
+        try { author = await gh("https://api.github.com/users/" + encodeURIComponent(ownerLogin)); } catch (e) { author = null; }
+      }
+      var assetBase = rel.assets[0].name.replace(/\.[^.]+$/, "");
+      var fallbackName = rel.name || humanize(state.repo.name);
+      var detSlug = slugify((rel.tag_name || "").replace(/^v/i, ""));
 
-    var assetBase = rel.assets[0].name.replace(/\.[^.]+$/, "");
-    var fallbackName = rel.name || humanize(state.repo.name);
-    var detSlug = slugify(rel.tag_name.replace(/^v/i, ""));
+      $("fModId").value = slugify(fallbackName) + (detSlug && detSlug !== "1" ? "-v" + detSlug : "");
+      $("fModName").value = fallbackName;
+      $("fDescription").value = (rel.body || state.repo.description || "")
+        .split(/\n+/)[0]
+        .replace(/\s+/g, " ").trim()
+        .slice(0, 280);
 
-    $("fModId").value = slugify(fallbackName) + (detSlug && detSlug !== "1" ? "-v" + detSlug : "");
-    $("fModName").value = fallbackName;
-    $("fDescription").value = (rel.body || state.repo.description || "")
-      .split(/\n+/)[0]
-      .replace(/\s+/g, " ").trim()
-      .slice(0, 280);
+      buildCategoryChecks();
+      var isPack = rel.assets[0].name.toLowerCase().endsWith(".pack");
+      document.querySelectorAll("#fCategories input").forEach(function (cb) {
+        cb.checked = isPack ? cb.value === "cosmetic" : cb.value === "parts";
+      });
 
-    buildCategoryChecks();
-    var isPack = rel.assets[0].name.toLowerCase().endsWith(".pack");
-    document.querySelectorAll("#fCategories input").forEach(function (cb) {
-      cb.checked = isPack ? cb.value === "cosmetic" : cb.value === "parts";
-    });
+      if (state.repo.arcdevs) {
+        $("fAuthorLabel").textContent = "Original author name (ArcDevs.io-hosted mod)";
+        $("authorHint").textContent = "The mod was published under the ArcDevs.io account — enter the actual creator's name shown in the app.";
+        $("fAuthorName").value = "";
+        $("fAuthorName").placeholder = "e.g. crack-a-toke";
+        $("fAuthorAvatar").value = "";
+        $("fAuthorAvatar").placeholder = "Optional — the app falls back to initials";
+      } else {
+        var ghName = (author && (author.name || author.login)) || ownerLogin;
+        $("fAuthorLabel").textContent = "Author name (GitHub)";
+        $("authorHint").textContent = "Fetched from github.com/" + ownerLogin + " — edit if the display name should differ from the login.";
+        $("fAuthorName").value = ghName;
+        $("fAuthorName").placeholder = "github username";
+        $("fAuthorAvatar").value = "https://github.com/" + ownerLogin + ".png?size=128";
+        $("fAuthorAvatar").placeholder = "https://github.com/owner.png";
+      }
 
-    if (state.repo.arcdevs) {
-      $("fAuthorLabel").textContent = "Original author name (ArcDevs.io-hosted mod)";
-      $("authorHint").textContent = "The mod was published under the ArcDevs.io account — enter the actual creator's name shown in the app.";
-      $("fAuthorName").value = "";
-      $("fAuthorName").placeholder = "e.g. crack-a-toke";
-      $("fAuthorAvatar").value = "";
-      $("fAuthorAvatar").placeholder = "Optional — the app falls back to initials";
-    } else {
-      var ghName = (author && (author.name || author.login)) || ownerLogin;
-      $("fAuthorLabel").textContent = "Author name (GitHub)";
-      $("authorHint").textContent = "Fetched from github.com/" + ownerLogin + " — edit if the display name should differ from the login.";
-      $("fAuthorName").value = ghName;
-      $("fAuthorName").placeholder = "github username";
-      $("fAuthorAvatar").value = "https://github.com/" + ownerLogin + ".png?size=128";
-      $("fAuthorAvatar").placeholder = "https://github.com/owner.png";
-    }
+      updateAvatarPreview();
+      $("fModIcon").value = firstImageInBody(rel.body, state.repo.description);
+      $("saveModalBtn").textContent = "Add to catalog";
+      editTarget = null;
+    })();
+  }
 
+  function openEditModal(mod) {
+    editTarget = mod;
+    openModal("Edit mod");
+    $("addSummary").classList.add("hidden");
+    var summary = $("addSummary");
+    summary.innerHTML = '<div class="repo">Editing existing catalog entry</div><div class="rel">' + esc(mod.name) + ' <span class="tag05">' + esc(mod.id) + "</span></div>";
+    summary.classList.remove("hidden");
+
+    $("fModId").value = mod.id;
+    $("fModId").readOnly = true;
+    $("fModId").style.opacity = "0.6";
+    $("fModName").value = mod.name;
+    $("fDescription").value = mod.description || "";
+    buildCategoryChecks(mod.categories || []);
+    $("fAuthorLabel").textContent = "Author name";
+    $("authorHint").textContent = "Author ID is " + mod.author.id + " — renaming updates the display name across the app.";
+    $("fAuthorName").value = mod.author.name;
+    $("fAuthorAvatar").value = mod.author.avatarUrl || "";
+    $("fAuthorAvatar").placeholder = "Optional — the app falls back to initials";
     updateAvatarPreview();
-    $("fModIcon").value = firstImageInBody(rel.body, state.repo.description);
-    $("addModal").classList.remove("hidden");
+    $("fModIcon").value = mod.iconUrl || "";
+    $("saveModalBtn").textContent = "Save changes";
   }
 
   function firstImageInBody(body, description) {
@@ -2103,18 +2267,8 @@
     return "";
   }
 
-  $("fAuthorName").addEventListener("input", updateAvatarPreview);
-  $("fAuthorAvatar").addEventListener("input", updateAvatarPreview);
-
-  $("closeAddModal").addEventListener("click", function () {
-    $("addModal").classList.add("hidden");
-  });
-
   $("saveModalBtn").addEventListener("click", async function () {
     if (state.saving) return;
-    var rel = state.selectedRelease;
-    if (!rel || !state.repo) return;
-
     var modId = $("fModId").value.trim();
     var modName = $("fModName").value.trim();
     var authorName = $("fAuthorName").value.trim();
@@ -2122,54 +2276,62 @@
       toast("Mod name, ID and author name are required.", true);
       return;
     }
-
     var cats = [];
     document.querySelectorAll("#fCategories input:checked").forEach(function (cb) { cats.push(cb.value); });
     if (!cats.length) {
       toast("Pick at least one category.", true);
       return;
     }
-
     var avatarUrl = $("fAuthorAvatar").value.trim() || undefined;
     var modIconUrl = $("fModIcon").value.trim() || undefined;
 
-    var asset = rel.assets[0];
-    var entry = {
-      id: modId,
-      name: modName,
-      description: $("fDescription").value.trim(),
-      iconUrl: modIconUrl,
-      author: {
-        id: state.repo.arcdevs ? slugify(authorName) : state.repo.owner,
-        name: authorName,
-        avatarUrl: avatarUrl
-      },
-      repository: {
-        owner: state.repo.owner,
-        name: state.repo.name,
-        url: state.repo.url
-      },
-      pinned: isStoreRepo(state.repo.owner, state.repo.name) ? true : undefined,
-      latestRelease: {
-        id: rel.id,
-        version: rel.tag_name.replace(/^v/i, "") || "1.0",
-        tagName: rel.tag_name,
-        name: rel.name,
-        body: rel.body,
-        publishedAt: rel.published_at,
-        assets: [{
-          id: asset.id,
-          name: asset.name,
-          size: asset.size,
-          downloadUrl: asset.browser_download_url,
-          contentType: asset.content_type
-        }]
-      },
-      categories: cats,
-      downloadCount: 0
-    };
-    if (!avatarUrl) delete entry.author.avatarUrl;
-    if (!modIconUrl) delete entry.iconUrl;
+    var entry;
+    if (editTarget) {
+      entry = Object.assign({}, editTarget);
+      entry.name = modName;
+      entry.description = $("fDescription").value.trim();
+      entry.iconUrl = modIconUrl;
+      if (!avatarUrl) { delete entry.author.avatarUrl; entry.author = Object.assign({}, entry.author); }
+      entry.author.name = authorName;
+      if (avatarUrl) entry.author.avatarUrl = avatarUrl;
+      entry.categories = cats;
+    } else {
+      var rel = state.selectedRelease;
+      if (!rel || !state.repo) return;
+      var asset = rel.assets[0];
+      entry = {
+        id: modId,
+        name: modName,
+        description: $("fDescription").value.trim(),
+        iconUrl: modIconUrl,
+        author: {
+          id: state.repo.arcdevs ? slugify(authorName) : state.repo.owner,
+          name: authorName,
+          avatarUrl: avatarUrl
+        },
+        repository: { owner: state.repo.owner, name: state.repo.name, url: state.repo.url },
+        pinned: isStoreRepo(state.repo.owner, state.repo.name) ? true : undefined,
+        latestRelease: {
+          id: rel.id,
+          version: rel.tag_name.replace(/^v/i, "") || "1.0",
+          tagName: rel.tag_name,
+          name: rel.name,
+          body: rel.body,
+          publishedAt: rel.published_at,
+          assets: [{
+            id: asset.id,
+            name: asset.name,
+            size: asset.size,
+            downloadUrl: asset.browser_download_url,
+            contentType: asset.content_type
+          }]
+        },
+        categories: cats,
+        downloadCount: 0
+      };
+      if (!avatarUrl) delete entry.author.avatarUrl;
+      if (!modIconUrl) delete entry.iconUrl;
+    }
 
     var existingIdx = catalog.mods.findIndex(function (m) { return m.id === modId; });
     if (existingIdx >= 0) {
@@ -2178,27 +2340,58 @@
       catalog.mods.push(entry);
     }
 
-    $("saveModalBtn").disabled = true;
-    $("saveModalBtn").textContent = "Saving…";
+    var btn = $("saveModalBtn");
+    btn.disabled = true;
+    btn.textContent = "Saving…";
     state.saving = true;
     try {
       await writeGitFile("catalog.json", catalog);
-      state.selectedRelease = null;
-      state.releases = [];
-      $("releasesList").innerHTML = "";
+      if (editTarget) {
+        logEvent("mod", modId, "Updated \"" + modName + "\"");
+      } else {
+        state.selectedRelease = null;
+        state.releases = [];
+        var box = $("releasesBox");
+        if (box) box.innerHTML = '<div class="empty">Choose a source above, then fetch releases.</div>';
+        logEvent("mod", modId, "Added \"" + modName + "\"");
+      }
       $("addModal").classList.add("hidden");
       render();
-      toast(modName + " added to the catalog — saved to GitHub, Pages updates in ~1 min.");
+      toast(editTarget ? modName + " updated — saved to GitHub." : modName + " added to the catalog — saved to GitHub.");
     } catch (e) {
       toast("Save failed: " + friendlyApiError(e), true);
     } finally {
       state.saving = false;
-      $("saveModalBtn").disabled = false;
-      $("saveModalBtn").textContent = "Add to catalog";
+      btn.disabled = false;
+      $("saveModalBtn").textContent = editTarget ? "Save changes" : "Add to catalog";
     }
   });
 
-  /* ---- Raw JSON editors ---- */
+  function isArcDevsOwner(owner) {
+    return state.arcdevsOwners.indexOf(String(owner).toLowerCase()) !== -1;
+  }
+  function isStoreRepo(owner, name) {
+    return String(owner).toLowerCase() === STORE_REPO.owner.toLowerCase() &&
+      String(name).toLowerCase() === STORE_REPO.name.toLowerCase();
+  }
+
+  async function persistCatalogAfterDelete() {
+    if (state.saving) return;
+    state.saving = true;
+    try {
+      await writeGitFile("catalog.json", catalog);
+      await writeGitFile("config.json", collectConfig());
+      toast("Deleted. Saved to GitHub — Pages updates in ~1 min.");
+      render();
+    } catch (e) {
+      toast("Delete failed: " + friendlyApiError(e), true);
+      render();
+    } finally {
+      state.saving = false;
+    }
+  }
+
+  /* ---------------- config collection + save ---------------- */
 
   function collectConfig() {
     return {
@@ -2214,77 +2407,217 @@
     };
   }
 
-  $("rawConfigToggle").addEventListener("click", function () {
-    var card = $("rawConfigCard");
-    card.classList.toggle("hidden");
-    if (!card.classList.contains("hidden")) {
-      $("rawConfigTextarea").value = JSON.stringify(collectConfig(), null, 2);
+  // Sync live settings fields if present
+  function syncSettingFields() {
+    if ($("fLatestVersion")) $("fLatestVersion").value = state.app.latestVersion;
+    if ($("fMinimumVersion")) $("fMinimumVersion").value = state.app.minimumVersion;
+    if ($("fAndroidUrl")) $("fAndroidUrl").value = state.app.androidDownloadUrl;
+    if ($("fChangelog")) $("fChangelog").value = state.app.changelog;
+  }
+
+  /* ---- raw JSON ---- */
+
+  var rawMode = "config";
+  function openRaw(mode) {
+    rawMode = mode;
+    $("rawModal").classList.remove("hidden");
+    if (mode === "config") {
+      $("rawTitle").textContent = "config.json";
+      $("rawHint").innerHTML = "Featured picks, badges, and app update settings. Must stay an object with the keys used by the app.";
+      $("rawTextarea").value = JSON.stringify(collectConfig(), null, 2);
+    } else {
+      $("rawTitle").textContent = "catalog.json";
+      $("rawHint").innerHTML = "The full mod library. Must keep a top-level <code>mods</code> array.";
+      $("rawTextarea").value = JSON.stringify(catalog, null, 2);
     }
+  }
+  $("rawConfigToggle").addEventListener("click", function () { openRaw("config"); });
+  $("rawCatalogToggle").addEventListener("click", function () { openRaw("catalog"); });
+  $("closeRawModal").addEventListener("click", function () { $("rawModal").classList.add("hidden"); });
+  $("rawCancelBtn").addEventListener("click", function () { $("rawModal").classList.add("hidden"); });
+
+  $("rawApplyBtn").addEventListener("click", function () {
+    var val;
+    try { val = JSON.parse($("rawTextarea").value); }
+    catch (e) { toast("Invalid JSON: " + e.message, true); return; }
+    if (rawMode === "config") {
+      if (typeof val !== "object" || Array.isArray(val)) { toast("config.json must be an object.", true); return; }
+      state.featuredMods = Array.isArray(val.featuredMods) ? val.featuredMods : [];
+      state.featuredModders = Array.isArray(val.featuredModders) ? val.featuredModders : [];
+      state.authorBadges = (val.authorBadges && typeof val.authorBadges === "object" && !Array.isArray(val.authorBadges)) ? val.authorBadges : {};
+      state.app = Object.assign({ latestVersion: "", minimumVersion: "", androidDownloadUrl: "", changelog: "" }, val.app || {});
+    } else {
+      if (!Array.isArray(val.mods)) { toast("catalog.json must contain a mods array.", true); return; }
+      catalog = val;
+    }
+    $("rawModal").classList.add("hidden");
+    setDirty();
+    logEvent("config", rawMode + ".json", "Staged raw " + rawMode + ".json edits");
+    render();
+    toast("Staged. Review and hit Save changes to publish.");
   });
 
-  $("rawCatalogToggle").addEventListener("click", function () {
-    var card = $("rawCatalogCard");
-    card.classList.toggle("hidden");
-    if (!card.classList.contains("hidden")) {
-      $("rawCatalogTextarea").value = JSON.stringify(catalog, null, 2);
-    }
-  });
+  /* ---- save ---- */
 
-  $("saveBtn").addEventListener("click", async function () {
+  $("saveBtn").addEventListener("click", doSave);
+  async function doSave() {
     var statusEl = $("saveStatus");
-
-    if (state.saving) return;
-    if (statusEl.textContent === "Saving…") return;
-
+    if (state.saving || statusEl.textContent === "Saving…") return;
+    statusEl.textContent = "Saving…";
     state.saving = true;
-    statusEl.textContent = "Saving…";
-
-    var configJson = collectConfig();
-    var catalogDraft = catalog;
-
-    if (!$("rawConfigCard").classList.contains("hidden")) {
-      try {
-        configJson = JSON.parse($("rawConfigTextarea").value);
-      } catch (e) {
-        toast("Raw config.json is invalid: " + e.message, true);
-        return;
-      }
-    }
-
-    if (!$("rawCatalogCard").classList.contains("hidden")) {
-      try {
-        catalogDraft = JSON.parse($("rawCatalogTextarea").value);
-      } catch (e) {
-        toast("Raw catalog.json is invalid: " + e.message, true);
-        return;
-      }
-      if (!Array.isArray(catalogDraft.mods)) {
-        toast("catalog.json must contain a mods array.", true);
-        return;
-      }
-    }
-
-    statusEl.textContent = "Saving…";
     try {
+      var configJson = collectConfig();
+      var catalogDraft = catalog;
       await writeGitFile("catalog.json", catalogDraft);
       catalog = catalogDraft;
       await writeGitFile("config.json", configJson);
+      logEvent("config", "config.json + catalog.json", "Saved staged changes to GitHub");
       render();
-      if (!$("rawConfigCard").classList.contains("hidden")) {
-        $("rawConfigTextarea").value = JSON.stringify(configJson, null, 2);
-      }
-      if (!$("rawCatalogCard").classList.contains("hidden")) {
-        $("rawCatalogTextarea").value = JSON.stringify(catalogDraft, null, 2);
-      }
+      clearDirty();
       toast("Saved to GitHub — Pages updates in ~1 min.");
     } catch (e) {
-      statusEl.textContent = "";
       toast("Save failed: " + friendlyApiError(e), true);
-      return;
     } finally {
       state.saving = false;
+      statusEl.textContent = "";
     }
-    statusEl.textContent = "";
+  }
+
+  /* ---------------- theme helpers ---------------- */
+
+  window.__theme = function (t) {
+    applyTheme(t, true);
+    document.body.classList.add("theme-anim");
+    setTimeout(function () { document.body.classList.remove("theme-anim"); }, 280);
+    renderPage(page);
+  };
+
+  window.__logout = function () { doLogout(); };
+  $("logoutBtn").addEventListener("click", doLogout);
+  function doLogout() {
+    localStorage.removeItem(TOKEN_KEY);
+    token = null;
+    catalog = { mods: [] };
+    state.releases = [];
+    state.selectedRelease = null;
+    state.log = [];
+    setStatus("Disconnected", false);
+    $("app").classList.add("hidden");
+    $("loginCard").classList.remove("hidden");
+    toast("Logged out.");
+  }
+
+  /* ---------------- render orchestration ---------------- */
+
+  function render() {
+    syncSettingFields();
+    renderPage(page);
+  }
+
+  // ---------------- boot / connect ----------------
+
+  async function postConnect() {
+    await applyRemote();
+    localStorage.setItem(TOKEN_KEY, token);
+    $("loginCard").classList.add("hidden");
+    $("app").classList.remove("hidden");
+    setStatus("Online", true);
+    buildNav();
+    render();
+    loadArcDevsRepos();
+    toast("Connected — live updates on");
+
+    try {
+      var me = await apiFetch("user");
+      state.tokenUser = me.login || me.name || me.login;
+    } catch (e) { state.tokenUser = null; }
+  }
+
+  function showBootError(msg) {
+    $("loginError").textContent = msg;
+    $("loginLooking").style.display = "none";
+  }
+
+  $("connectBtn").addEventListener("click", async function () {
+    $("loginError").textContent = "";
+    $("loginLooking").style.display = "block";
+    $("connectBtn").disabled = true;
+    $("connectBtn").textContent = "Connecting…";
+    try {
+      var v = await validateToken($("tokenInput").value);
+      token = v.token;
+      state.tokenScopes = v.scopes;
+      await postConnect();
+      // restore scopes from previous session
+      if (state.tokenScopes.length && state.tokenScopes.indexOf("repo") === -1 && state.tokenScopes.indexOf("public_repo") === -1) {
+        toast("Heads up: this token has no repo write scope — saves/deletes will fail.", true, 8000);
+        $("sideStatus").className = "conn offline";
+      }
+    } catch (e) {
+      token = null;
+      showBootError((e && e.message) ? e.message : "Couldn't connect.");
+      setStatus("Disconnected", false);
+    } finally {
+      $("connectBtn").disabled = false;
+      $("connectBtn").textContent = "Connect";
+      $("loginLooking").style.display = "none";
+    }
+  });
+
+  (async function boot() {
+    applyTheme(document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark", false);
+    // wait for ionicons to hydrate before drawing content
+    setTimeout(function () {
+      $("loginLooking").style.display = "none";
+    }, 40);
+    var saved = localStorage.getItem(TOKEN_KEY);
+    if (!saved) return;
+    try {
+      var v = await validateToken(saved);
+      token = v.token;
+      state.tokenScopes = v.scopes;
+      await postConnect();
+    } catch (e) {
+      localStorage.removeItem(TOKEN_KEY);
+      token = null;
+      showBootError("Saved session rejected: " + (e && e.message ? e.message : e) + " — sign in again.");
+    }
+  })();
+
+  $("refreshBtn").addEventListener("click", async function () {
+    var btn = $("refreshBtn");
+    btn.disabled = true;
+    try {
+      await applyRemote();
+      loadArcDevsRepos();
+      toast("Fetched the latest remote content.");
+    } catch (e) {
+      toast("Fetch failed: " + friendlyApiError(e), true);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // keep input listeners (author name/avatar) alive across re-renders via document delegation
+  document.addEventListener("input", function (ev) {
+    if (ev.target && (ev.target.id === "fAuthorName" || ev.target.id === "fAuthorAvatar")) {
+      if (!$("addModal").classList.contains("hidden")) updateAvatarPreview();
+    }
+  });
+
+  // enter key connects on login
+  $("tokenInput").addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter") $("connectBtn").click();
+  });
+
+  // rehydration trigger — preview of db fields setters writing into state on change
+  document.addEventListener("change", function (ev) {
+    if (!connected) return;
+    var t = ev.target;
+    if (t && (t.id === "fLatestVersion" || t.id === "fMinimumVersion" || t.id === "fAndroidUrl" || t.id === "fChangelog")) {
+      setDirty();
+      state.app[t.id === "fAndroidUrl" ? "androidDownloadUrl" : (t.id === "fLatestVersion" ? "latestVersion" : t.id === "fMinimumVersion" ? "minimumVersion" : "changelog")] = t.value;
+    }
   });
 })();
 </script>
