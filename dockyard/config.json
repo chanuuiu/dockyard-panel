@@ -1,6 +1,10 @@
 {
-  "featuredMods": [],
-  "featuredModders": [],
+  "featuredMods": [
+    "orbital-identity-pack-v1-5"
+  ],
+  "featuredModders": [
+    "arcdevsio"
+  ],
   "authorBadges": {
     "arcdevsio": {
       "verified": true,
