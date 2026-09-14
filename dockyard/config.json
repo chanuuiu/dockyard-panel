@@ -17,5 +17,9 @@
       ]
     }
   },
-  "app": {}
+  "app": {
+    "latestVersion": "1.2.0",
+    "minimumVersion": "1.0.0",
+    "androidDownloadUrl": "https://github.com/ArcDevsio/Dockyard/releases/tag/APP/dockyard-v1.2.apk"
+  }
 }
