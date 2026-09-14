@@ -32,24 +32,6 @@
           }
         ]
       }
-    },
-    {
-      "id": "info-overload",
-      "name": "Info Overload",
-      "description": "",
-      "author": {
-        "id": "astrotherabbit",
-        "name": "AstroTheRabbit"
-      },
-      "repository": {
-        "owner": "AstroTheRabbit",
-        "name": "FSI-Info-Overload-Mod-SFS",
-        "url": "https://github.com/AstroTheRabbit/FSI-Info-Overload-Mod-SFS"
-      },
-      "pinned": false,
-      "categories": [
-        "utility"
-      ]
     }
   ]
 }
