@@ -4,10 +4,11 @@
     {
       "id": "orbital-identity-pack-v1-5",
       "name": "Orbital Identity Pack+",
-      "description": "A texture pack containing different logos of space agencies and space companies.\nForked from Chano's repository to maintain the texture pack automatically.",
+      "description": "A texture pack containing different types of logo of famous and well known space companies and space agencies.",
       "author": {
-        "id": "arcdevs-io",
-        "name": "ArcDevs"
+        "id": "arcdevsio",
+        "name": "ArcDevs",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/273210718?v=4"
       },
       "repository": {
         "owner": "ArcDevsio",
