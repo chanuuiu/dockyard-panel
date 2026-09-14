@@ -1,6 +1,17 @@
 {
   "featuredMods": [],
   "featuredModders": [],
-  "authorBadges": {},
+  "authorBadges": {
+    "arcdevsio": {
+      "verified": true,
+      "badges": [
+        {
+          "name": "TEAM",
+          "color": "#ff375f",
+          "icon": "code-slash"
+        }
+      ]
+    }
+  },
   "app": {}
 }
