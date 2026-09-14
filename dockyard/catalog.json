@@ -34,11 +34,11 @@
       }
     },
     {
-      "id": "info-overload-v2-9",
-      "name": "Info Overload v2.9",
+      "id": "info-overload",
+      "name": "Info Overload",
       "description": "",
       "author": {
-        "id": "arcdevsio",
+        "id": "astrotherabbit",
         "name": "AstroTheRabbit"
       },
       "repository": {
