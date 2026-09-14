@@ -20,6 +20,7 @@
   "app": {
     "latestVersion": "1.2.0",
     "minimumVersion": "1.0.0",
-    "androidDownloadUrl": "https://github.com/ArcDevsio/Dockyard/releases/tag/APP/dockyard-v1.2.apk"
+    "androidDownloadUrl": "https://github.com/ArcDevsio/Dockyard/releases/tag/APP/dockyard-v1.2.apk",
+    "changelog": "Release notes\n\nWhat shipped.\n\nv1.0.0\n2026\nLive mod catalog served from the central library\nOne-tap download with live progress\nAutomatic .zip extraction into Custom_Assets\nUpdate and notification center\nVerified badges for trusted modders\nDark-only theme, Android 11+\n\nv1.1.0\n2026\n...\n\nv1.2.0\n2026\n..."
   }
 }
