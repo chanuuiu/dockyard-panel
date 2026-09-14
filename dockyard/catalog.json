@@ -4,10 +4,11 @@
     {
       "id": "orbital-identity-pack-v1-5",
       "name": "Orbital Identity Pack+",
-      "description": "",
+      "description": "A texture pack with high-definition quality including most of the major space agencies and companies across the globe.",
       "author": {
         "id": "arcdevsio",
-        "name": "ArcDevs"
+        "name": "Orbital Identity Pack+",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/273210718?v=4"
       },
       "repository": {
         "owner": "ArcDevsio",

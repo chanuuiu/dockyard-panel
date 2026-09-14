@@ -1,19 +1,6 @@
 {
-  "featuredMods": [
-    "orbital-identity-pack-v1-5"
-  ],
+  "featuredMods": [],
   "featuredModders": [],
-  "authorBadges": {
-    "arcdevsio": {
-      "verified": true,
-      "badges": [
-        {
-          "name": "SOURCE",
-          "color": "#30d158",
-          "icon": "code-slash"
-        }
-      ]
-    }
-  },
+  "authorBadges": {},
   "app": {}
 }
