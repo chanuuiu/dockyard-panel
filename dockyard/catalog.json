@@ -33,6 +33,28 @@
           }
         ]
       }
+    },
+    {
+      "id": "procedural-parts-v1-4-5",
+      "name": "Procedural Parts v1.4.5",
+      "description": "",
+      "author": {
+        "id": "oanoals9",
+        "name": "SFS.S9",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/252710772?v=4"
+      },
+      "repository": {
+        "owner": "oanoals9",
+        "name": "Procedural-Parts-SFS",
+        "url": "https://github.com/oanoals9/Procedural-Parts-SFS"
+      },
+      "pinned": false,
+      "categories": [
+        "engines",
+        "structural",
+        "utility",
+        "parts"
+      ]
     }
   ]
 }
