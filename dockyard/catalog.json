@@ -37,6 +37,24 @@
         "cosmetic"
       ],
       "downloadCount": 0
+    },
+    {
+      "id": "astrotherabbit-2.9",
+      "name": "Info Overload",
+      "description": "A mod for the game Spaceflight Simulator that visualises colliders, ranges and other invisible/technical stuff. Made for Fusion Space Industries.",
+      "author": {
+        "id": "astrotherabbit-v2.9",
+        "name": "AstroTheRabbit"
+      },
+      "repository": {
+        "owner": "AstroTheRabbit",
+        "name": "FSI-Info-Overload-Mod-SFS",
+        "url": "https://github.com/AstroTheRabbit/FSI-Info-Overload-Mod-SFS"
+      },
+      "pinned": false,
+      "categories": [
+        "cosmetic"
+      ]
     }
   ]
 }
