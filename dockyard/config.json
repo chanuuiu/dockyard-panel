@@ -1,1 +1,17 @@
-{}
+{
+  "featuredMods": [],
+  "featuredModders": [],
+  "authorBadges": {
+    "chano": {
+      "verified": true,
+      "badges": [
+        {
+          "name": "arcdevs",
+          "color": "#ff453a",
+          "icon": "hammer"
+        }
+      ]
+    }
+  },
+  "app": {}
+}
