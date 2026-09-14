@@ -1,4 +1,37 @@
 {
   "version": 1,
-  "mods": []
+  "mods": [
+    {
+      "id": "orbital-identity-pack-v1-5",
+      "name": "Orbital Identity Pack+",
+      "description": "A texture pack containing different logos of space agencies and space companies.\nForked from Chano's repository to maintain the texture pack automatically.",
+      "author": {
+        "id": "arcdevs-io",
+        "name": "ArcDevs"
+      },
+      "repository": {
+        "owner": "ArcDevsio",
+        "name": "Dockyard",
+        "url": "https://github.com/ArcDevsio/Dockyard"
+      },
+      "pinned": true,
+      "categories": [
+        "cosmetic"
+      ],
+      "latestRelease": {
+        "tagName": "1.5",
+        "version": "1.5",
+        "publishedAt": "2026-09-09T09:23:59Z",
+        "assets": [
+          {
+            "id": 552419805,
+            "name": "Orbital.Identity.V1.5.zip",
+            "size": 1792535,
+            "downloadUrl": "https://github.com/ArcDevsio/Dockyard/releases/download/1.5/Orbital.Identity.V1.5.zip",
+            "contentType": "application/x-zip-compressed"
+          }
+        ]
+      }
+    }
+  ]
 }
