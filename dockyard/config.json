@@ -11,13 +11,8 @@
       "badges": [
         {
           "name": "TEAM",
-          "color": "#ff375f",
-          "icon": "code-slash"
-        },
-        {
-          "name": "PARTNER",
           "color": "#0a84ff",
-          "icon": "link"
+          "icon": "beaker"
         }
       ]
     }
