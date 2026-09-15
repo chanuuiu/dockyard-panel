@@ -11,6 +11,15 @@
           "icon": "beaker"
         }
       ]
+    },
+    "chanuuiu": {
+      "badges": [
+        {
+          "name": "PARTNER",
+          "color": "#30d158",
+          "icon": "link"
+        }
+      ]
     }
   },
   "app": {
