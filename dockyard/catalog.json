@@ -33,6 +33,25 @@
           }
         ]
       }
+    },
+    {
+      "id": "kinetix-core",
+      "name": "KINETIX Core™",
+      "description": "",
+      "author": {
+        "id": "chanuuiu",
+        "name": "Chano",
+        "avatarUrl": "https://avatars.githubusercontent.com/u/95059951?v=4"
+      },
+      "repository": {
+        "owner": "chanuuiu",
+        "name": "KINETIX",
+        "url": "https://github.com/chanuuiu/KINETIX"
+      },
+      "pinned": false,
+      "categories": [
+        "utility"
+      ]
     }
   ]
 }
