@@ -1,6 +1,8 @@
 {
   "featuredMods": [],
-  "featuredModders": [],
+  "featuredModders": [
+    "arcdevsio"
+  ],
   "authorBadges": {
     "arcdevsio": {
       "verified": true,
